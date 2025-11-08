@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" fill="none">
+  <!-- Honda Official Logo -->
+  <circle cx="100" cy="30" r="25" fill="#E60012"/>
+  <text x="100" y="38" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="white">H</text>
+  <text x="100" y="55" font-family="Arial, sans-serif" font-size="8" font-weight="bold" text-anchor="middle" fill="#E60012">HONDA</text>
+</svg>

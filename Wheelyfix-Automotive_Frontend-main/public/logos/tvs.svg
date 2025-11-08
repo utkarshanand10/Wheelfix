@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" fill="none">
+  <!-- TVS Motor Official Logo -->
+  <ellipse cx="100" cy="30" rx="30" ry="20" fill="#8A2BE2"/>
+  <text x="100" y="38" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="white">T</text>
+  <text x="100" y="55" font-family="Arial, sans-serif" font-size="8" font-weight="bold" text-anchor="middle" fill="#8A2BE2">TVS</text>
+</svg>

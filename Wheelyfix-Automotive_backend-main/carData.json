@@ -1,0 +1,238 @@
+{
+  "Maruti Suzuki": {
+    "Swift": ["Petrol", "CNG"],
+    "Baleno": ["Petrol", "CNG"],
+    "Alto": ["Petrol", "CNG"],
+    "Dzire": ["Petrol", "CNG"],
+    "Vitara Brezza": ["Petrol", "CNG"],
+    "Ertiga": ["Petrol", "CNG"],
+    "WagonR": ["Petrol", "CNG"],
+    "Celerio": ["Petrol", "CNG"],
+    "S-Presso": ["Petrol", "CNG"],
+    "Ignis": ["Petrol"],
+    "XL6": ["Petrol", "CNG"],
+    "Grand Vitara": ["Petrol", "Hybrid"],
+    "Fronx": ["Petrol", "CNG"],
+    "Jimny": ["Petrol"],
+    "Invicto": ["Hybrid"]
+  },
+  "Hyundai": {
+    "Grand i10 Nios": ["Petrol", "CNG"],
+    "i20": ["Petrol"],
+    "Venue": ["Petrol", "Diesel"],
+    "Creta": ["Petrol", "Diesel"],
+    "Verna": ["Petrol", "Diesel"],
+    "Alcazar": ["Petrol", "Diesel"],
+    "Tucson": ["Petrol", "Diesel"],
+    "Aura": ["Petrol", "CNG"],
+    "Exter": ["Petrol", "CNG"],
+    "Ioniq 5": ["EV"]
+  },
+  "Tata": {
+    "Nexon": ["Petrol", "Diesel", "EV"],
+    "Altroz": ["Petrol", "Diesel"],
+    "Harrier": ["Petrol", "Diesel"],
+    "Safari": ["Petrol", "Diesel"],
+    "Punch": ["Petrol", "CNG"],
+    "Tiago": ["Petrol", "CNG"],
+    "Tigor": ["Petrol", "CNG", "EV"],
+    "Ace Gold": ["CNG"],
+    "Yodha": ["Petrol", "Diesel"]
+  },
+  "Mahindra": {
+    "XUV300": ["Petrol", "Diesel"],
+    "XUV700": ["Petrol", "Diesel"],
+    "Thar": ["Petrol", "Diesel"],
+    "Scorpio N": ["Petrol", "Diesel"],
+    "Bolero": ["Petrol", "Diesel"],
+    "Bolero Neo": ["Petrol", "Diesel"],
+    "Marazzo": ["Diesel"],
+    "XUV400": ["EV"],
+    "eKUV100": ["EV"],
+    "eVerito": ["EV"]
+  },
+  "Honda": {
+    "City": ["Petrol", "Hybrid"],
+    "Amaze": ["Petrol"],
+    "Jazz": ["Petrol"],
+    "WR-V": ["Petrol"],
+    "Elevate": ["Petrol"]
+  },
+  "Toyota": {
+    "Innova Crysta": ["Petrol", "Diesel"],
+    "Innova HyCross": ["Petrol", "Hybrid"],
+    "Glanza": ["Petrol"],
+    "Fortuner": ["Petrol", "Diesel"],
+    "Urban Cruiser Hyryder": ["Petrol", "Hybrid"],
+    "Camry": ["Hybrid"],
+    "Vellfire": ["Hybrid"]
+  },
+  "Kia": {
+    "Seltos": ["Petrol", "Diesel"],
+    "Sonet": ["Petrol", "Diesel"],
+    "Carens": ["Petrol", "Diesel"],
+    "EV6": ["EV"],
+    "Carnival": ["Diesel"]
+  },
+  "Skoda": {
+    "Kushaq": ["Petrol"],
+    "Slavia": ["Petrol"],
+    "Octavia": ["Petrol"],
+    "Superb": ["Petrol"],
+    "Kodiaq": ["Petrol"]
+  },
+  "Volkswagen": {
+    "Taigun": ["Petrol"],
+    "Virtus": ["Petrol"],
+    "Tiguan": ["Petrol"],
+    "Polo": ["Petrol"]
+  },
+  "MG": {
+    "Astor": ["Petrol"],
+    "Hector": ["Petrol", "Diesel"],
+    "Hector Plus": ["Petrol", "Diesel"],
+    "ZS EV": ["EV"],
+    "Comet EV": ["EV"],
+    "Gloster": ["Diesel"]
+  },
+  "Nissan": {
+    "Magnite": ["Petrol"],
+    "Kicks": ["Petrol", "Diesel"]
+  },
+  "Renault": {
+    "Kiger": ["Petrol"],
+    "Triber": ["Petrol"],
+    "Kwid": ["Petrol", "CNG"],
+    "Duster": ["Petrol"]
+  },
+  "Citroen": {
+    "C3": ["Petrol"],
+    "C3 Aircross": ["Petrol"],
+    "C5 Aircross": ["Petrol"]
+  },
+  "Jeep": {
+    "Compass": ["Petrol", "Diesel"],
+    "Meridian": ["Petrol", "Diesel"],
+    "Wrangler": ["Petrol"],
+    "Grand Cherokee": ["Petrol"]
+  },
+  "BMW": {
+    "2 Series Gran Coupe": ["Petrol"],
+    "3 Series": ["Petrol"],
+    "5 Series": ["Petrol"],
+    "X1": ["Petrol"],
+    "X3": ["Petrol"],
+    "X5": ["Petrol"],
+    "iX1": ["EV"],
+    "iX": ["EV"]
+  },
+  "Mercedes-Benz": {
+    "A-Class": ["Petrol"],
+    "C-Class": ["Petrol"],
+    "E-Class": ["Petrol"],
+    "S-Class": ["Petrol"],
+    "GLA": ["Petrol"],
+    "GLC": ["Petrol"],
+    "GLE": ["Petrol"],
+    "EQS": ["EV"],
+    "EQC": ["EV"]
+  },
+  "Audi": {
+    "A3": ["Petrol"],
+    "A4": ["Petrol"],
+    "A6": ["Petrol"],
+    "Q2": ["Petrol"],
+    "Q3": ["Petrol"],
+    "Q5": ["Petrol"],
+    "Q7": ["Petrol"],
+    "e-tron": ["EV"],
+    "e-tron GT": ["EV"]
+  },
+  "Jaguar": {
+    "XE": ["Petrol"],
+    "XF": ["Petrol"],
+    "F-PACE": ["Petrol"],
+    "I-PACE": ["EV"]
+  },
+  "Land Rover": {
+    "Range Rover Evoque": ["Petrol", "Diesel"],
+    "Range Rover Velar": ["Petrol", "Diesel"],
+    "Range Rover Sport": ["Petrol", "Diesel"],
+    "Discovery Sport": ["Petrol", "Diesel"],
+    "Defender": ["Petrol", "Diesel"]
+  },
+  "Volvo": {
+    "XC40": ["Petrol"],
+    "XC60": ["Petrol"],
+    "XC90": ["Petrol"],
+    "S60": ["Petrol"],
+    "S90": ["Petrol"]
+  },
+  "Lexus": {
+    "ES": ["Hybrid"],
+    "LS": ["Hybrid"],
+    "NX": ["Hybrid"],
+    "RX": ["Hybrid"],
+    "GX": ["Petrol"]
+  },
+  "Porsche": {
+    "Macan": ["Petrol"],
+    "Cayenne": ["Petrol"],
+    "Panamera": ["Petrol"],
+    "911": ["Petrol"],
+    "Taycan": ["EV"]
+  },
+  "Maserati": {
+    "Ghibli": ["Petrol"],
+    "Levante": ["Petrol"],
+    "Quattroporte": ["Petrol"]
+  },
+  "Bentley": {
+    "Continental GT": ["Petrol"],
+    "Bentayga": ["Petrol"],
+    "Flying Spur": ["Petrol"]
+  },
+  "Rolls-Royce": {
+    "Ghost": ["Petrol"],
+    "Phantom": ["Petrol"],
+    "Cullinan": ["Petrol"]
+  },
+  "Lamborghini": {
+    "Huracan": ["Petrol"],
+    "Urus": ["Petrol"]
+  },
+  "Ferrari": {
+    "Roma": ["Petrol"],
+    "SF90 Stradale": ["Hybrid"],
+    "296 GTB": ["Hybrid"]
+  },
+  "McLaren": {
+    "720S": ["Petrol"],
+    "Artura": ["Hybrid"]
+  },
+  "Aston Martin": {
+    "Vantage": ["Petrol"],
+    "DB11": ["Petrol"],
+    "DBX": ["Petrol"]
+  },
+  "Bajaj": {
+    "Qute": ["CNG"]
+  },
+  "Force": {
+    "Gurkha": ["Diesel"],
+    "Trax": ["Diesel"],
+    "One": ["Diesel"]
+  },
+  "Isuzu": {
+    "D-Max": ["Diesel"],
+    "MU-X": ["Diesel"]
+  },
+  "Mitsubishi": {
+    "Outlander": ["Petrol"],
+    "Pajero Sport": ["Diesel"]
+  },
+  "SsangYong": {
+    "Rexton": ["Diesel"],
+    "Tivoli": ["Diesel"]
+  }
+}

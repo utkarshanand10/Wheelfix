@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheelyfix - Your Vehicle's Best Friend</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #f8f9fa;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .nav {
+            background-color: #007bff;
+            padding: 1rem 0;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-link:hover {
+            color: #cce5ff;
+        }
+
+        .main {
+            padding: 3rem 0;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: #fff;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="container nav-container">
+            <h1 style="color: white;">Wheelyfix</h1>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/api/users/login" class="nav-link">Login</a>
+                <a href="/api/users" class="nav-link">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="header">
+        <div class="container">
+            <h1 style="margin-bottom: 1rem;">Your Vehicle's Best Friend</h1>
+            <p>Access professional automotive services, track maintenance, and keep your vehicle running smoothly.</p>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="features">
+                <div class="feature-card">
+                    <h3>Track Your Service</h3>
+                    <p>Real-time updates on your vehicle service status</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Secure Access</h3>
+                    <p>Your data is protected with industry-standard security</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Service History</h3>
+                    <p>Access complete service history and maintenance records</p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 3rem;">
+                <h2 style="margin-bottom: 1rem;">Why Choose Wheelyfix?</h2>
+                <ul style="list-style: none; margin-bottom: 2rem;">
+                    <li>✓ 500+ Service Centers Across India</li>
+                    <li>✓ Genuine Parts & Expert Technicians</li>
+                    <li>✓ 24/7 Customer Support</li>
+                    <li>✓ Competitive Pricing & Transparent Quotes</li>
+                </ul>
+                <a href="/api/users" class="button">Get Started</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,190 @@
+{
+  "Hero MotoCorp": {
+    "Splendor Plus": ["Petrol"],
+    "HF Deluxe": ["Petrol"],
+    "Passion Pro": ["Petrol"],
+    "Glamour": ["Petrol"],
+    "Xtreme 160R": ["Petrol"],
+    "Destini 125": ["Petrol"],
+    "Xpulse 200": ["Petrol"],
+    "Maestro Edge": ["Petrol"],
+    "Pleasure Plus": ["Petrol"],
+    "Super Splendor": ["Petrol"]
+  },
+  "Honda": {
+    "Activa 6G": ["Petrol"],
+    "Unicorn": ["Petrol"],
+    "Hornet 2.0": ["Petrol"],
+    "Shine 125": ["Petrol"],
+    "CB350": ["Petrol"],
+    "Dio": ["Petrol"],
+    "Activa 125": ["Petrol"],
+    "Grazia": ["Petrol"],
+    "CB Shine": ["Petrol"],
+    "CB Unicorn 160": ["Petrol"]
+  },
+  "Bajaj": {
+    "Pulsar 150": ["Petrol"],
+    "Pulsar 220F": ["Petrol"],
+    "Avenger": ["Petrol"],
+    "Platina": ["Petrol"],
+    "Dominar 400": ["Petrol"],
+    "CT 125X": ["Petrol"],
+    "Pulsar NS200": ["Petrol"],
+    "Pulsar RS200": ["Petrol"],
+    "Pulsar 125": ["Petrol"],
+    "V15": ["Petrol"]
+  },
+  "TVS": {
+    "Apache RTR 160": ["Petrol"],
+    "Apache RTR 200": ["Petrol"],
+    "Jupiter": ["Petrol"],
+    "NTorq": ["Petrol"],
+    "Radeon": ["Petrol"],
+    "Raider 125": ["Petrol"],
+    "Apache RR 310": ["Petrol"],
+    "Scooty Pep Plus": ["Petrol"],
+    "Scooty Zest": ["Petrol"],
+    "Star City Plus": ["Petrol"]
+  },
+  "Yamaha": {
+    "FZ-S": ["Petrol"],
+    "MT-15": ["Petrol"],
+    "R15 V4": ["Petrol"],
+    "Fascino": ["Petrol"],
+    "Ray ZR": ["Petrol"],
+    "Aerox 155": ["Petrol"],
+    "FZ 25": ["Petrol"],
+    "Saluto RX": ["Petrol"],
+    "FZ-X": ["Petrol"],
+    "R15M": ["Petrol"]
+  },
+  "Suzuki": {
+    "Gixxer": ["Petrol"],
+    "Access 125": ["Petrol"],
+    "Avenis": ["Petrol"],
+    "Burgman Street": ["Petrol"],
+    "Hayate": ["Petrol"],
+    "Gixxer SF": ["Petrol"],
+    "Intruder": ["Petrol"],
+    "Swish": ["Petrol"],
+    "Gixxer 250": ["Petrol"]
+  },
+  "Royal Enfield": {
+    "Classic 350": ["Petrol"],
+    "Bullet 350": ["Petrol"],
+    "Hunter 350": ["Petrol"],
+    "Meteor 350": ["Petrol"],
+    "Himalayan": ["Petrol"],
+    "Continental GT 650": ["Petrol"],
+    "Interceptor 650": ["Petrol"],
+    "Thunderbird 350X": ["Petrol"],
+    "Bullet 500": ["Petrol"]
+  },
+  "KTM": {
+    "Duke 200": ["Petrol"],
+    "Duke 250": ["Petrol"],
+    "Duke 390": ["Petrol"],
+    "RC 200": ["Petrol"],
+    "RC 390": ["Petrol"],
+    "Adventure 390": ["Petrol"],
+    "Duke 125": ["Petrol"],
+    "RC 125": ["Petrol"],
+    "Adventure 250": ["Petrol"]
+  },
+  "Jawa": {
+    "Jawa 42": ["Petrol"],
+    "Jawa Perak": ["Petrol"],
+    "Jawa Classic": ["Petrol"],
+    "Jawa 42 Bobber": ["Petrol"],
+    "Jawa 42 Scrambler": ["Petrol"]
+  },
+  "BMW": {
+    "G 310 R": ["Petrol"],
+    "G 310 GS": ["Petrol"],
+    "C 400 GT": ["Petrol"],
+    "C 400 X": ["Petrol"],
+    "F 850 GS": ["Petrol"]
+  },
+  "Ducati": {
+    "Monster 797": ["Petrol"],
+    "Scrambler Sixty2": ["Petrol"],
+    "Scrambler Icon": ["Petrol"],
+    "Multistrada 950": ["Petrol"],
+    "Panigale V2": ["Petrol"]
+  },
+  "Triumph": {
+    "Street Triple 675": ["Petrol"],
+    "Tiger 800": ["Petrol"],
+    "Bonneville T100": ["Petrol"],
+    "Speed Twin": ["Petrol"],
+    "Rocket 3": ["Petrol"]
+  },
+  "Kawasaki": {
+    "Ninja 300": ["Petrol"],
+    "Ninja 650": ["Petrol"],
+    "Z650": ["Petrol"],
+    "Versys 650": ["Petrol"],
+    "Ninja ZX-10R": ["Petrol"]
+  },
+  "Harley-Davidson": {
+    "Street 750": ["Petrol"],
+    "Iron 883": ["Petrol"],
+    "Forty-Eight": ["Petrol"],
+    "Fat Bob": ["Petrol"],
+    "Road King": ["Petrol"]
+  },
+  "Benelli": {
+    "TNT 300": ["Petrol"],
+    "TNT 600i": ["Petrol"],
+    "TRK 502": ["Petrol"],
+    "Imperiale 400": ["Petrol"],
+    "Leoncino 500": ["Petrol"]
+  },
+  "MV Agusta": {
+    "Brutale 800": ["Petrol"],
+    "F3 800": ["Petrol"],
+    "Turismo Veloce": ["Petrol"],
+    "Dragster 800": ["Petrol"],
+    "Rush 1000": ["Petrol"]
+  },
+  "Aprilia": {
+    "RSV4": ["Petrol"],
+    "Tuono V4": ["Petrol"],
+    "Shiver 900": ["Petrol"],
+    "Dorsoduro 900": ["Petrol"],
+    "SR 150": ["Petrol"]
+  },
+  "Vespa": {
+    "Vespa LX 125": ["Petrol"],
+    "Vespa SXL 150": ["Petrol"],
+    "Vespa GTS 300": ["Petrol"],
+    "Vespa Primavera": ["Petrol"],
+    "Vespa Sprint": ["Petrol"]
+  },
+  "Lambretta": {
+    "Lambretta V200": ["Petrol"],
+    "Lambretta V300": ["Petrol"],
+    "Lambretta V400": ["Petrol"]
+  },
+  "Mahindra": {
+    "Mojo 300": ["Petrol"],
+    "Gusto 125": ["Petrol"],
+    "Rodeo RZ": ["Petrol"],
+    "Duro DZ": ["Petrol"]
+  },
+  "Ola Electric": {
+    "Ola S1": ["Electric"],
+    "Ola S1 Pro": ["Electric"],
+    "Ola S1 Air": ["Electric"]
+  },
+  "Ather": {
+    "Ather 450X": ["Electric"],
+    "Ather 450 Plus": ["Electric"],
+    "Ather 450S": ["Electric"]
+  },
+  "Revolt": {
+    "Revolt RV 400": ["Electric"],
+    "Revolt RV 300": ["Electric"]
+  }
+}

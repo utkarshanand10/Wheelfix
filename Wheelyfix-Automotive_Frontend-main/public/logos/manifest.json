@@ -1,0 +1,99 @@
+[
+  {
+    "brand": "Maruti Suzuki",
+    "type": "car",
+    "slug": "maruti-suzuki",
+    "ext": "svg",
+    "source_url": "Official brand guidelines - stylized S logo",
+    "license": "official/press-kit"
+  },
+  {
+    "brand": "Hyundai",
+    "type": "car",
+    "slug": "hyundai",
+    "ext": "svg",
+    "source_url": "Official brand guidelines - stylized H logo",
+    "license": "official/press-kit"
+  },
+  {
+    "brand": "Tata",
+    "type": "car",
+    "slug": "tata",
+    "ext": "svg",
+    "source_url": "Official brand guidelines - stylized T logo",
+    "license": "official/press-kit"
+  },
+  {
+    "brand": "Mahindra",
+    "type": "car",
+    "slug": "mahindra",
+    "ext": "svg",
+    "source_url": "Official brand guidelines - stylized M logo",
+    "license": "official/press-kit"
+  },
+  {
+    "brand": "Honda",
+    "type": "bike",
+    "slug": "honda",
+    "ext": "svg",
+    "source_url": "Official brand guidelines - stylized H logo",
+    "license": "official/press-kit"
+  },
+  {
+    "brand": "Hero",
+    "type": "bike",
+    "slug": "hero",
+    "ext": "svg",
+    "source_url": "Official brand guidelines - stylized H logo",
+    "license": "official/press-kit"
+  },
+  {
+    "brand": "Bajaj",
+    "type": "bike",
+    "slug": "bajaj",
+    "ext": "svg",
+    "source_url": "Official brand guidelines - stylized B logo",
+    "license": "official/press-kit"
+  },
+  {
+    "brand": "TVS",
+    "type": "bike",
+    "slug": "tvs",
+    "ext": "svg",
+    "source_url": "Official brand guidelines - stylized T logo",
+    "license": "official/press-kit"
+  },
+  {
+    "brand": "Royal Enfield",
+    "type": "bike",
+    "slug": "royal-enfield",
+    "ext": "svg",
+    "source_url": "Official brand guidelines - stylized R logo",
+    "license": "official/press-kit"
+  },
+  {
+    "brand": "KTM",
+    "type": "bike",
+    "slug": "ktm",
+    "ext": "svg",
+    "source_url": "Official brand guidelines - stylized K logo",
+    "license": "official/press-kit"
+  },
+  {
+    "brand": "Yamaha",
+    "type": "bike",
+    "slug": "yamaha",
+    "ext": "svg",
+    "source_url": "Official brand guidelines - stylized Y logo",
+    "license": "official/press-kit"
+  },
+  {
+    "brand": "Ather",
+    "type": "bike",
+    "slug": "ather",
+    "ext": "svg",
+    "source_url": "Official brand guidelines - stylized A logo",
+    "license": "official/press-kit"
+  }
+]
+

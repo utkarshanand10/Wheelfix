@@ -1,0 +1,714 @@
+{
+  "Hero": {
+    "Splendor": {
+      "Petrol": [
+        {
+          "serviceName": "Basic Service",
+          "price": 499,
+          "description": "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km). Recommended every 3,000-4,000 km.",
+          "estimatedTime": 1,
+          "category": "Basic",
+          "engineCC": "100-110cc",
+          "interval": "Every 3,000-4,000 km"
+        },
+        {
+          "serviceName": "Standard Service",
+          "price": 999,
+          "description": "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report. Recommended every 6,000-8,000 km.",
+          "estimatedTime": 1.5,
+          "category": "Standard",
+          "engineCC": "100-110cc",
+          "interval": "Every 6,000-8,000 km"
+        },
+        {
+          "serviceName": "Premium Service",
+          "price": 1499,
+          "description": "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km). Annual service.",
+          "estimatedTime": 2,
+          "category": "Premium",
+          "engineCC": "100-110cc",
+          "interval": "Every 12,000 km or annually"
+        },
+        {
+          "serviceName": "Annual Maintenance Package (AMC)",
+          "price": 1999,
+          "description": "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          "estimatedTime": 0,
+          "category": "AMC",
+          "engineCC": "100-110cc",
+          "interval": "Annual package"
+        },
+        {
+          "serviceName": "Bike Wash & Polish",
+          "price": 149,
+          "description": "Complete bike washing, polishing, and detailing",
+          "estimatedTime": 0.5,
+          "category": "Add-on",
+          "engineCC": "100-110cc"
+        },
+        {
+          "serviceName": "Brake Pad Replacement",
+          "price": 249,
+          "description": "Brake pad replacement with genuine parts",
+          "estimatedTime": 0.5,
+          "category": "Add-on",
+          "engineCC": "100-110cc"
+        },
+        {
+          "serviceName": "Chain Set Replacement",
+          "price": 699,
+          "description": "Complete chain set replacement with genuine parts",
+          "estimatedTime": 1,
+          "category": "Add-on",
+          "engineCC": "100-110cc"
+        },
+        {
+          "serviceName": "Clutch Cable Replacement",
+          "price": 199,
+          "description": "Clutch cable replacement with genuine parts",
+          "estimatedTime": 0.5,
+          "category": "Add-on",
+          "engineCC": "100-110cc"
+        },
+        {
+          "serviceName": "Pickup & Drop (extra distance)",
+          "price": 99,
+          "description": "Additional pickup and drop service for distances beyond 5 km",
+          "estimatedTime": 0,
+          "category": "Add-on",
+          "engineCC": "100-110cc"
+        }
+      ]
+    },
+    "Passion Pro": {
+      "Petrol": [
+        {
+          "serviceName": "Basic Service",
+          "price": 499,
+          "description": "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km)",
+          "estimatedTime": 1,
+          "category": "Basic",
+          "engineCC": "100-110cc"
+        },
+        {
+          "serviceName": "Standard Service",
+          "price": 899,
+          "description": "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report",
+          "estimatedTime": 1.5,
+          "category": "Standard",
+          "engineCC": "100-110cc"
+        },
+        {
+          "serviceName": "Premium Service",
+          "price": 1499,
+          "description": "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km)",
+          "estimatedTime": 2,
+          "category": "Premium",
+          "engineCC": "100-110cc"
+        },
+        {
+          "serviceName": "Annual Maintenance Package (AMC)",
+          "price": 1999,
+          "description": "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          "estimatedTime": 0,
+          "category": "AMC",
+          "engineCC": "100-110cc"
+        }
+      ]
+    },
+    "Glamour": {
+      "Petrol": [
+        {
+          "serviceName": "Basic Service",
+          "price": 599,
+          "description": "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km)",
+          "estimatedTime": 1,
+          "category": "Basic",
+          "engineCC": "125cc"
+        },
+        {
+          "serviceName": "Standard Service",
+          "price": 999,
+          "description": "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report",
+          "estimatedTime": 1.5,
+          "category": "Standard",
+          "engineCC": "125cc"
+        },
+        {
+          "serviceName": "Premium Service",
+          "price": 1599,
+          "description": "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km)",
+          "estimatedTime": 2,
+          "category": "Premium",
+          "engineCC": "125cc"
+        },
+        {
+          "serviceName": "Annual Maintenance Package (AMC)",
+          "price": 2199,
+          "description": "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          "estimatedTime": 0,
+          "category": "AMC",
+          "engineCC": "125cc"
+        }
+      ]
+    }
+  },
+  "Yamaha": {
+    "FZ": {
+      "Petrol": [
+        {
+          "serviceName": "Basic Service",
+          "price": 599,
+          "description": "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km)",
+          "estimatedTime": 1,
+          "category": "Basic",
+          "engineCC": "150cc"
+        },
+        {
+          "serviceName": "Standard Service",
+          "price": 1099,
+          "description": "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report",
+          "estimatedTime": 1.5,
+          "category": "Standard",
+          "engineCC": "150cc"
+        },
+        {
+          "serviceName": "Premium Service",
+          "price": 1799,
+          "description": "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km)",
+          "estimatedTime": 2,
+          "category": "Premium",
+          "engineCC": "150cc"
+        },
+        {
+          "serviceName": "Annual Maintenance Package (AMC)",
+          "price": 2499,
+          "description": "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          "estimatedTime": 0,
+          "category": "AMC",
+          "engineCC": "150cc"
+        }
+      ]
+    },
+    "R15": {
+      "Petrol": [
+        {
+          "serviceName": "Basic Service",
+          "price": 699,
+          "description": "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km)",
+          "estimatedTime": 1,
+          "category": "Basic",
+          "engineCC": "155cc"
+        },
+        {
+          "serviceName": "Standard Service",
+          "price": 1199,
+          "description": "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report",
+          "estimatedTime": 1.5,
+          "category": "Standard",
+          "engineCC": "155cc"
+        },
+        {
+          "serviceName": "Premium Service",
+          "price": 1999,
+          "description": "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km)",
+          "estimatedTime": 2,
+          "category": "Premium",
+          "engineCC": "155cc"
+        },
+        {
+          "serviceName": "Annual Maintenance Package (AMC)",
+          "price": 2799,
+          "description": "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          "estimatedTime": 0,
+          "category": "AMC",
+          "engineCC": "155cc"
+        }
+      ]
+    },
+    "Fascino": {
+      "Petrol": [
+        {
+          "serviceName": "Basic Service",
+          "price": 499,
+          "description": "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km)",
+          "estimatedTime": 1,
+          "category": "Basic",
+          "engineCC": "113cc"
+        },
+        {
+          "serviceName": "Standard Service",
+          "price": 899,
+          "description": "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report",
+          "estimatedTime": 1.5,
+          "category": "Standard",
+          "engineCC": "113cc"
+        },
+        {
+          "serviceName": "Premium Service",
+          "price": 1499,
+          "description": "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km)",
+          "estimatedTime": 2,
+          "category": "Premium",
+          "engineCC": "113cc"
+        },
+        {
+          "serviceName": "Annual Maintenance Package (AMC)",
+          "price": 1999,
+          "description": "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          "estimatedTime": 0,
+          "category": "AMC",
+          "engineCC": "113cc"
+        }
+      ]
+    }
+  },
+  "Royal Enfield": {
+    "Classic 350": {
+      "Petrol": [
+        {
+          "serviceName": "Basic Service",
+          "price": 699,
+          "description": "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km). Recommended every 3,000-4,000 km.",
+          "estimatedTime": 1,
+          "category": "Basic",
+          "engineCC": "350cc",
+          "interval": "Every 3,000-4,000 km"
+        },
+        {
+          "serviceName": "Standard Service",
+          "price": 1299,
+          "description": "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report. Recommended every 6,000-8,000 km.",
+          "estimatedTime": 1.5,
+          "category": "Standard",
+          "engineCC": "350cc",
+          "interval": "Every 6,000-8,000 km"
+        },
+        {
+          "serviceName": "Premium Service",
+          "price": 1999,
+          "description": "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km). Annual service.",
+          "estimatedTime": 2,
+          "category": "Premium",
+          "engineCC": "350cc",
+          "interval": "Every 12,000 km or annually"
+        },
+        {
+          "serviceName": "Annual Maintenance Package (AMC)",
+          "price": 2999,
+          "description": "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          "estimatedTime": 0,
+          "category": "AMC",
+          "engineCC": "350cc",
+          "interval": "Annual package"
+        },
+        {
+          "serviceName": "Bike Wash & Polish",
+          "price": 199,
+          "description": "Complete bike washing, polishing, and detailing for premium bikes",
+          "estimatedTime": 0.5,
+          "category": "Add-on",
+          "engineCC": "350cc"
+        },
+        {
+          "serviceName": "Brake Pad Replacement",
+          "price": 399,
+          "description": "Brake pad replacement with genuine parts for premium bikes",
+          "estimatedTime": 0.5,
+          "category": "Add-on",
+          "engineCC": "350cc"
+        },
+        {
+          "serviceName": "Chain Set Replacement",
+          "price": 1199,
+          "description": "Complete chain set replacement with genuine parts for premium bikes",
+          "estimatedTime": 1,
+          "category": "Add-on",
+          "engineCC": "350cc"
+        },
+        {
+          "serviceName": "Clutch Cable Replacement",
+          "price": 299,
+          "description": "Clutch cable replacement with genuine parts for premium bikes",
+          "estimatedTime": 0.5,
+          "category": "Add-on",
+          "engineCC": "350cc"
+        },
+        {
+          "serviceName": "Pickup & Drop (extra distance)",
+          "price": 199,
+          "description": "Additional pickup and drop service for distances beyond 5 km",
+          "estimatedTime": 0,
+          "category": "Add-on",
+          "engineCC": "350cc"
+        }
+      ]
+    },
+    "Bullet 350": {
+      "Petrol": [
+        {
+          "serviceName": "Basic Service",
+          "price": 699,
+          "description": "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km)",
+          "estimatedTime": 1,
+          "category": "Basic",
+          "engineCC": "350cc"
+        },
+        {
+          "serviceName": "Standard Service",
+          "price": 1199,
+          "description": "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report",
+          "estimatedTime": 1.5,
+          "category": "Standard",
+          "engineCC": "350cc"
+        },
+        {
+          "serviceName": "Premium Service",
+          "price": 1999,
+          "description": "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km)",
+          "estimatedTime": 2,
+          "category": "Premium",
+          "engineCC": "350cc"
+        },
+        {
+          "serviceName": "Annual Maintenance Package (AMC)",
+          "price": 2999,
+          "description": "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          "estimatedTime": 0,
+          "category": "AMC",
+          "engineCC": "350cc"
+        }
+      ]
+    },
+    "Himalayan": {
+      "Petrol": [
+        {
+          "serviceName": "Basic Service",
+          "price": 799,
+          "description": "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km)",
+          "estimatedTime": 1,
+          "category": "Basic",
+          "engineCC": "411cc"
+        },
+        {
+          "serviceName": "Standard Service",
+          "price": 1299,
+          "description": "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report",
+          "estimatedTime": 1.5,
+          "category": "Standard",
+          "engineCC": "411cc"
+        },
+        {
+          "serviceName": "Premium Service",
+          "price": 2199,
+          "description": "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km)",
+          "estimatedTime": 2,
+          "category": "Premium",
+          "engineCC": "411cc"
+        },
+        {
+          "serviceName": "Annual Maintenance Package (AMC)",
+          "price": 3199,
+          "description": "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          "estimatedTime": 0,
+          "category": "AMC",
+          "engineCC": "411cc"
+        }
+      ]
+    }
+  },
+  "Bajaj": {
+    "Pulsar": {
+      "Petrol": [
+        {
+          "serviceName": "Basic Service",
+          "price": 599,
+          "description": "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km)",
+          "estimatedTime": 1,
+          "category": "Basic",
+          "engineCC": "150cc"
+        },
+        {
+          "serviceName": "Standard Service",
+          "price": 1099,
+          "description": "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report",
+          "estimatedTime": 1.5,
+          "category": "Standard",
+          "engineCC": "150cc"
+        },
+        {
+          "serviceName": "Premium Service",
+          "price": 1799,
+          "description": "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km)",
+          "estimatedTime": 2,
+          "category": "Premium",
+          "engineCC": "150cc"
+        },
+        {
+          "serviceName": "Annual Maintenance Package (AMC)",
+          "price": 2499,
+          "description": "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          "estimatedTime": 0,
+          "category": "AMC",
+          "engineCC": "150cc"
+        }
+      ]
+    },
+    "CT 100": {
+      "Petrol": [
+        {
+          "serviceName": "Basic Service",
+          "price": 499,
+          "description": "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km)",
+          "estimatedTime": 1,
+          "category": "Basic",
+          "engineCC": "100cc"
+        },
+        {
+          "serviceName": "Standard Service",
+          "price": 899,
+          "description": "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report",
+          "estimatedTime": 1.5,
+          "category": "Standard",
+          "engineCC": "100cc"
+        },
+        {
+          "serviceName": "Premium Service",
+          "price": 1499,
+          "description": "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km)",
+          "estimatedTime": 2,
+          "category": "Premium",
+          "engineCC": "100cc"
+        },
+        {
+          "serviceName": "Annual Maintenance Package (AMC)",
+          "price": 1999,
+          "description": "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          "estimatedTime": 0,
+          "category": "AMC",
+          "engineCC": "100cc"
+        }
+      ]
+    },
+    "Discover": {
+      "Petrol": [
+        {
+          "serviceName": "Basic Service",
+          "price": 499,
+          "description": "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km)",
+          "estimatedTime": 1,
+          "category": "Basic",
+          "engineCC": "100-125cc"
+        },
+        {
+          "serviceName": "Standard Service",
+          "price": 899,
+          "description": "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report",
+          "estimatedTime": 1.5,
+          "category": "Standard",
+          "engineCC": "100-125cc"
+        },
+        {
+          "serviceName": "Premium Service",
+          "price": 1499,
+          "description": "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km)",
+          "estimatedTime": 2,
+          "category": "Premium",
+          "engineCC": "100-125cc"
+        },
+        {
+          "serviceName": "Annual Maintenance Package (AMC)",
+          "price": 1999,
+          "description": "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          "estimatedTime": 0,
+          "category": "AMC",
+          "engineCC": "100-125cc"
+        }
+      ]
+    }
+  },
+  "TVS": {
+    "Apache": {
+      "Petrol": [
+        {
+          "serviceName": "Basic Service",
+          "price": 599,
+          "description": "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km)",
+          "estimatedTime": 1,
+          "category": "Basic",
+          "engineCC": "150-160cc"
+        },
+        {
+          "serviceName": "Standard Service",
+          "price": 1099,
+          "description": "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report",
+          "estimatedTime": 1.5,
+          "category": "Standard",
+          "engineCC": "150-160cc"
+        },
+        {
+          "serviceName": "Premium Service",
+          "price": 1799,
+          "description": "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km)",
+          "estimatedTime": 2,
+          "category": "Premium",
+          "engineCC": "150-160cc"
+        },
+        {
+          "serviceName": "Annual Maintenance Package (AMC)",
+          "price": 2499,
+          "description": "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          "estimatedTime": 0,
+          "category": "AMC",
+          "engineCC": "150-160cc"
+        }
+      ]
+    },
+    "Jupiter": {
+      "Petrol": [
+        {
+          "serviceName": "Basic Service",
+          "price": 499,
+          "description": "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km)",
+          "estimatedTime": 1,
+          "category": "Basic",
+          "engineCC": "110cc"
+        },
+        {
+          "serviceName": "Standard Service",
+          "price": 899,
+          "description": "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report",
+          "estimatedTime": 1.5,
+          "category": "Standard",
+          "engineCC": "110cc"
+        },
+        {
+          "serviceName": "Premium Service",
+          "price": 1499,
+          "description": "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km)",
+          "estimatedTime": 2,
+          "category": "Premium",
+          "engineCC": "110cc"
+        },
+        {
+          "serviceName": "Annual Maintenance Package (AMC)",
+          "price": 1999,
+          "description": "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          "estimatedTime": 0,
+          "category": "AMC",
+          "engineCC": "110cc"
+        }
+      ]
+    }
+  },
+  "Honda": {
+    "Activa": {
+      "Petrol": [
+        {
+          "serviceName": "Basic Service",
+          "price": 499,
+          "description": "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km)",
+          "estimatedTime": 1,
+          "category": "Basic",
+          "engineCC": "110-125cc"
+        },
+        {
+          "serviceName": "Standard Service",
+          "price": 899,
+          "description": "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report",
+          "estimatedTime": 1.5,
+          "category": "Standard",
+          "engineCC": "110-125cc"
+        },
+        {
+          "serviceName": "Premium Service",
+          "price": 1499,
+          "description": "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km)",
+          "estimatedTime": 2,
+          "category": "Premium",
+          "engineCC": "110-125cc"
+        },
+        {
+          "serviceName": "Annual Maintenance Package (AMC)",
+          "price": 1999,
+          "description": "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          "estimatedTime": 0,
+          "category": "AMC",
+          "engineCC": "110-125cc"
+        }
+      ]
+    },
+    "Shine": {
+      "Petrol": [
+        {
+          "serviceName": "Basic Service",
+          "price": 499,
+          "description": "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km)",
+          "estimatedTime": 1,
+          "category": "Basic",
+          "engineCC": "125cc"
+        },
+        {
+          "serviceName": "Standard Service",
+          "price": 899,
+          "description": "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report",
+          "estimatedTime": 1.5,
+          "category": "Standard",
+          "engineCC": "125cc"
+        },
+        {
+          "serviceName": "Premium Service",
+          "price": 1499,
+          "description": "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km)",
+          "estimatedTime": 2,
+          "category": "Premium",
+          "engineCC": "125cc"
+        },
+        {
+          "serviceName": "Annual Maintenance Package (AMC)",
+          "price": 1999,
+          "description": "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          "estimatedTime": 0,
+          "category": "AMC",
+          "engineCC": "125cc"
+        }
+      ]
+    },
+    "CB Hornet": {
+      "Petrol": [
+        {
+          "serviceName": "Basic Service",
+          "price": 599,
+          "description": "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km)",
+          "estimatedTime": 1,
+          "category": "Basic",
+          "engineCC": "160cc"
+        },
+        {
+          "serviceName": "Standard Service",
+          "price": 1099,
+          "description": "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report",
+          "estimatedTime": 1.5,
+          "category": "Standard",
+          "engineCC": "160cc"
+        },
+        {
+          "serviceName": "Premium Service",
+          "price": 1799,
+          "description": "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km)",
+          "estimatedTime": 2,
+          "category": "Premium",
+          "engineCC": "160cc"
+        },
+        {
+          "serviceName": "Annual Maintenance Package (AMC)",
+          "price": 2499,
+          "description": "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          "estimatedTime": 0,
+          "category": "AMC",
+          "engineCC": "160cc"
+        }
+      ]
+    }
+  }
+}
