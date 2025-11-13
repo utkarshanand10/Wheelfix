@@ -194,6 +194,42 @@ export const AdminOrders: React.FC = () => {
     loadStats();
   }, [pagination.current, search, filters]);
 
+  // Lightweight realtime: poll for new orders every 10s and reset to first page if new items appear
+  useEffect(() => {
+    const id = setInterval(async () => {
+      try {
+        const params = {
+          page: 1,
+          limit: pagination.limit,
+          search: search || undefined,
+          ...filters,
+        } as any;
+        const response = await ordersApi.getOrders(params);
+        const root: any = response?.data || {};
+        const container =
+          root.data && typeof root.data === "object" ? root.data : root;
+        const latest: any[] = Array.isArray(container.orders)
+          ? container.orders
+          : Array.isArray(container.data?.orders)
+          ? container.data.orders
+          : [];
+        // If the first item changed, refresh the current view and stats
+        if (
+          latest.length > 0 &&
+          (!orders.length || latest[0]?._id !== orders[0]?._id)
+        ) {
+          setPagination((prev) => ({ ...prev, current: 1 }));
+          loadOrders();
+          loadStats();
+        }
+      } catch {
+        // ignore polling errors
+      }
+    }, 10000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orders, filters, search, pagination.limit]);
+
   const handleSearch = (value: string) => {
     setSearch(value);
     setPagination((prev) => ({ ...prev, current: 1 }));

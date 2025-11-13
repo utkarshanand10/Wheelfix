@@ -19,7 +19,6 @@ interface Service {
   description: string;
   icon: string;
   price: number;
-  durationMinutes: number; // backend field name
   isActive: boolean; // backend field name
   category: string;
 }
@@ -59,7 +58,6 @@ const AdminServices = () => {
           description: editingService.description,
           icon: editingService.icon,
           price: editingService.price,
-          durationMinutes: (editingService as any).duration_minutes ?? editingService.durationMinutes,
           isActive: (editingService as any).is_active ?? editingService.isActive,
           category: editingService.category,
         });
@@ -69,7 +67,6 @@ const AdminServices = () => {
           description: editingService.description,
           icon: editingService.icon,
           price: editingService.price,
-          durationMinutes: (editingService as any).duration_minutes ?? editingService.durationMinutes,
           isActive: (editingService as any).is_active ?? editingService.isActive,
           category: editingService.category,
         });
@@ -102,7 +99,6 @@ const AdminServices = () => {
       description: '',
       icon: '🔧',
       price: 0,
-      durationMinutes: 60,
       isActive: true,
       category: 'General',
     });
@@ -177,15 +173,6 @@ const AdminServices = () => {
                       type="number"
                       value={editingService.price}
                       onChange={(e) => setEditingService({ ...editingService, price: parseFloat(e.target.value) || 0 })}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="duration">Duration (min)</Label>
-                    <Input
-                      id="duration"
-                      type="number"
-                      value={(editingService as any).duration_minutes ?? editingService.durationMinutes}
-                      onChange={(e) => setEditingService({ ...editingService, durationMinutes: parseInt(e.target.value) || 0 })}
                     />
                   </div>
                 </div>

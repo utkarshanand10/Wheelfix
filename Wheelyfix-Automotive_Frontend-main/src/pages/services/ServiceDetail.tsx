@@ -1,7 +1,8 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import { api } from '@/lib/api';
 
 const toTitle = (slug?: string) => {
   if (!slug) return 'Service';
@@ -12,10 +13,60 @@ const toTitle = (slug?: string) => {
 
 const ServiceDetail = () => {
   const { slug } = useParams();
+  const [loading, setLoading] = useState(true);
+  const [services, setServices] = useState<
+    { id: string; name: string; price?: number; priceInRupees?: number; description?: string }[]
+  >([]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
   }, [slug]);
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get<{ services: any[] }>('/cart/services');
+        const list =
+          (res.data?.services as any[]) ||
+          (Array.isArray(res.data) ? (res.data as any[]) : []);
+        if (!mounted) return;
+        // Normalize: prefer priceInRupees when provided; otherwise derive from paise
+        const normalized = (list || []).map((s: any) => ({
+          id: String(s.id || s._id || s.name || ''),
+          name: String(s.name || s.title || 'Service'),
+          priceInRupees:
+            typeof s.priceInRupees === 'number'
+              ? s.priceInRupees
+              : typeof s.price === 'number'
+              ? s.price / 100
+              : undefined,
+          description: s.description || '',
+        }));
+        setServices(normalized);
+      } catch {
+        // Silent fallback to no dynamic prices
+        setServices([]);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const inr = useMemo(
+    () =>
+      new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 0,
+      }),
+    []
+  );
 
   const gallery = useMemo(() => {
     const u = (path: string) => `${path}?w=1200&q=80&auto=format&fit=crop`;
@@ -155,21 +206,36 @@ const ServiceDetail = () => {
           {/* Pricing */}
           <div className="bg-white rounded-xl shadow-lg border p-6">
             <h3 className="text-xl font-semibold mb-4">Transparent Pricing</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-700">Basic</span>
-                <span className="font-bold">₹1,499</span>
+          {loading ? (
+            <div className="text-sm text-gray-500">Loading prices…</div>
+          ) : services.length > 0 ? (
+            <>
+              <div className="space-y-3">
+                {services.map((svc) => (
+                  <div key={svc.id} className="flex items-center justify-between">
+                    <span className="text-gray-700">{svc.name}</span>
+                    <span className="font-bold">
+                      {typeof svc.priceInRupees === 'number'
+                        ? inr.format(svc.priceInRupees)
+                        : '—'}
+                    </span>
+                  </div>
+                ))}
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-700">Standard</span>
-                <span className="font-bold">₹2,999</span>
+              <p className="text-xs text-gray-500 mt-3">
+                Prices are live and may vary by vehicle model and brand.
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="text-sm text-gray-500">
+                No prices available right now. Please check back later.
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-700">Comprehensive</span>
-                <span className="font-bold">₹4,999</span>
-              </div>
-            </div>
-            <p className="text-xs text-gray-500 mt-3">Prices vary by vehicle model and brand.</p>
+              <p className="text-xs text-gray-400 mt-3">
+                Dynamic pricing loads automatically from admin-managed services.
+              </p>
+            </>
+          )}
             {/* Book Now button removed - booking only available from homepage */}
           </div>
         </div>

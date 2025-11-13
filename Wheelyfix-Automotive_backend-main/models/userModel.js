@@ -151,7 +151,13 @@ userSchema.methods.isAdminUser = function () {
 
 // Increment login attempts
 userSchema.methods.incLoginAttempts = function () {
-  // If we have a previous lock that has expired, restart at 1
+  // Previously this function applied an account lock (lockUntil) after
+  // a threshold of failed attempts. That lockout behavior has been
+  // intentionally removed — we still increment the loginAttempts counter
+  // for observability but do not set lockUntil or block logins here.
+
+  // If there is a stale lockUntil (from older code) that has expired, clear it and
+  // reset attempts to 1 so counters stay sane.
   if (this.lockUntil && this.lockUntil < Date.now()) {
     return this.updateOne({
       $unset: { lockUntil: 1 },
@@ -159,14 +165,8 @@ userSchema.methods.incLoginAttempts = function () {
     });
   }
 
-  const updates = { $inc: { loginAttempts: 1 } };
-
-  // Lock account after 5 failed attempts for 2 hours
-  if (this.loginAttempts + 1 >= 5 && !this.isLocked) {
-    updates.$set = { lockUntil: Date.now() + 2 * 60 * 60 * 1000 }; // 2 hours
-  }
-
-  return this.updateOne(updates);
+  // Only increment loginAttempts; do NOT set lockUntil or enforce a lock.
+  return this.updateOne({ $inc: { loginAttempts: 1 } });
 };
 
 // Reset login attempts

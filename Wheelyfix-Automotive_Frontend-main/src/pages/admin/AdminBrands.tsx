@@ -89,7 +89,7 @@ export const AdminBrands: React.FC = () => {
   const [filters, setFilters] = useState({
     status: "",
     featured: "",
-    source: "db" as "db" | "vehicle",
+    source: "vehicle" as "db" | "vehicle",
   });
   const [pagination, setPagination] = useState({
     current: 1,
@@ -101,6 +101,19 @@ export const AdminBrands: React.FC = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
   const [isReordering, setIsReordering] = useState(false);
+  const [brandForm, setBrandForm] = useState({
+    name: "",
+    slug: "",
+    description: "",
+    website: "",
+    email: "",
+    phone: "",
+    status: "active",
+    featured: false,
+    visibleOnHome: false,
+    logoUrl: "",
+    logoAlt: "",
+  });
 
   // Check permissions
   if (!hasPermission("manage_brands")) {
@@ -123,9 +136,51 @@ export const AdminBrands: React.FC = () => {
       setLoading(true);
       if (filters.source === "vehicle") {
         const response = await brandsApi.getVehicleBrands();
-        const all = (response?.data?.data?.brands || []) as any[];
+        const allRaw = (response?.data?.data?.brands ||
+          response?.data?.brands ||
+          response?.data ||
+          []) as any[];
+        // Normalize vehicle brands into Brand-like objects
+        const all = (Array.isArray(allRaw) ? allRaw : []).map((b: any, i) => {
+          const name =
+            (typeof b === "string" && b) ||
+            b?.name ||
+            b?.brand ||
+            `Brand ${i + 1}`;
+          const vehicleType =
+            (b?.vehicleType &&
+              String(b.vehicleType).toLowerCase().includes("bike") &&
+              "bike") ||
+            (b?.vehicleType &&
+              String(b.vehicleType).toLowerCase().includes("car") &&
+              "car") ||
+            b?.type ||
+            "";
+        return {
+            _id: `veh_${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+            name,
+            slug: (name || "")
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/(^-|-$)/g, ""),
+            description: "",
+            // Only include logo when a valid URL exists to avoid alt-text duplicating the name
+            logo: b?.logo?.url ? b.logo : undefined,
+            website: "",
+            email: "",
+            phone: "",
+            status: "active",
+            featured: false,
+            visibleOnHome: false,
+            orderIndex: i,
+            productsCount: 0,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            vehicleType,
+          } as any;
+        });
         const filtered = search
-          ? all.filter((b) =>
+          ? all.filter((b: any) =>
               `${b.name}`.toLowerCase().includes(search.toLowerCase())
             )
           : all;
@@ -224,6 +279,40 @@ export const AdminBrands: React.FC = () => {
     }
   };
 
+  // Import a vehicle brand (from JSON datasets) into the database so it can be edited/deleted
+  const importVehicleBrand = async (vehBrand: any) => {
+    try {
+      const payload: any = {
+        name: vehBrand.name,
+        slug:
+          vehBrand.slug ||
+          String(vehBrand.name || "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)/g, ""),
+        description: vehBrand.description || "",
+        logo: vehBrand.logo?.url ? vehBrand.logo : undefined,
+        website: vehBrand.website || "",
+        email: vehBrand.email || "",
+        phone: vehBrand.phone || "",
+        status: "active",
+        featured: false,
+        visibleOnHome: false,
+        orderIndex: 0,
+        type: vehBrand.vehicleType || undefined,
+      };
+      await brandsApi.createBrand(payload);
+      toast.success("Brand added to database. You can now edit/delete it.");
+      // Switch to DB view to allow editing immediately
+      setFilters((prev) => ({ ...prev, source: "db" }));
+      setPagination((p) => ({ ...p, current: 1 }));
+      await loadBrands();
+      await loadStats();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to import brand");
+    }
+  };
+
   const handleToggleStatus = async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === "active" ? "inactive" : "active";
 
@@ -288,10 +377,23 @@ export const AdminBrands: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Brands</h1>
           <p className="text-gray-600">Manage your product brands</p>
         </div>
-        <Button
-          onClick={() => setShowCreateDialog(true)}
-          disabled={filters.source === "vehicle"}
-        >
+        <Button onClick={() => {
+          setEditingBrand(null);
+          setBrandForm({
+            name: "",
+            slug: "",
+            description: "",
+            website: "",
+            email: "",
+            phone: "",
+            status: "active",
+            featured: false,
+            visibleOnHome: false,
+            logoUrl: "",
+            logoAlt: "",
+          });
+          setShowCreateDialog(true);
+        }}>
           <Plus className="h-4 w-4 mr-2" />
           Add Brand
         </Button>
@@ -503,7 +605,7 @@ export const AdminBrands: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-3">
-                        {brand.logo ? (
+                        {brand.logo && (brand as any).logo.url ? (
                           <img
                             src={(brand as any).logo?.url}
                             alt={(brand as any).logo?.alt || brand.name}
@@ -580,39 +682,46 @@ export const AdminBrands: React.FC = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => setEditingBrand(brand)}
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            View
-                          </DropdownMenuItem>
-                          {filters.source === "db" && (
-                            <DropdownMenuItem
-                              onClick={() => setEditingBrand(brand)}
-                            >
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                          )}
-                          {filters.source === "db" && (
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleToggleStatus(brand._id, brand.status)
-                              }
-                            >
-                              {brand.status === "active"
-                                ? "Deactivate"
-                                : "Activate"}
-                            </DropdownMenuItem>
-                          )}
-                          {filters.source === "db" && (
-                            <DropdownMenuItem
-                              onClick={() => handleDeleteBrand(brand._id)}
-                              className="text-red-600"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
+                          {filters.source === "vehicle" ? (
+                            <>
+                              <DropdownMenuItem
+                                onClick={() => importVehicleBrand(brand as any)}
+                              >
+                                <Plus className="h-4 w-4 mr-2" />
+                                Add to Database
+                              </DropdownMenuItem>
+                            </>
+                          ) : (
+                            <>
+                              <DropdownMenuItem
+                                onClick={() => setEditingBrand(brand)}
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                View
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => setEditingBrand(brand)}
+                              >
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  handleToggleStatus(brand._id, brand.status)
+                                }
+                              >
+                                {brand.status === "active"
+                                  ? "Deactivate"
+                                  : "Activate"}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleDeleteBrand(brand._id)}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </>
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -680,10 +789,176 @@ export const AdminBrands: React.FC = () => {
               {editingBrand ? "Edit Brand" : "Create New Brand"}
             </DialogTitle>
           </DialogHeader>
-          <div className="p-4">
-            <p className="text-gray-600">
-              Brand form will be implemented here with all necessary fields.
-            </p>
+          <div className="p-4 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">Name</label>
+                <Input
+                  value={brandForm.name}
+                  onChange={(e) =>
+                    setBrandForm((p) => ({ ...p, name: e.target.value }))
+                  }
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Slug</label>
+                <Input
+                  value={brandForm.slug}
+                  onChange={(e) =>
+                    setBrandForm((p) => ({ ...p, slug: e.target.value }))
+                  }
+                  placeholder="auto-generated from name if empty"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="text-sm font-medium">Description</label>
+                <Input
+                  value={brandForm.description}
+                  onChange={(e) =>
+                    setBrandForm((p) => ({ ...p, description: e.target.value }))
+                  }
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Website</label>
+                <Input
+                  value={brandForm.website}
+                  onChange={(e) =>
+                    setBrandForm((p) => ({ ...p, website: e.target.value }))
+                  }
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Email</label>
+                <Input
+                  value={brandForm.email}
+                  onChange={(e) =>
+                    setBrandForm((p) => ({ ...p, email: e.target.value }))
+                  }
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Phone</label>
+                <Input
+                  value={brandForm.phone}
+                  onChange={(e) =>
+                    setBrandForm((p) => ({ ...p, phone: e.target.value }))
+                  }
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Status</label>
+                <Select
+                  value={brandForm.status}
+                  onValueChange={(v) =>
+                    setBrandForm((p) => ({ ...p, status: v }))
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Logo URL</label>
+                <Input
+                  value={brandForm.logoUrl}
+                  onChange={(e) =>
+                    setBrandForm((p) => ({ ...p, logoUrl: e.target.value }))
+                  }
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Logo Alt</label>
+                <Input
+                  value={brandForm.logoAlt}
+                  onChange={(e) =>
+                    setBrandForm((p) => ({ ...p, logoAlt: e.target.value }))
+                  }
+                />
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={brandForm.featured}
+                  onChange={(e) =>
+                    setBrandForm((p) => ({ ...p, featured: e.target.checked }))
+                  }
+                />
+                <span>Featured</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={brandForm.visibleOnHome}
+                  onChange={(e) =>
+                    setBrandForm((p) => ({
+                      ...p,
+                      visibleOnHome: e.target.checked,
+                    }))
+                  }
+                />
+                <span>Visible on Home</span>
+              </label>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setShowCreateDialog(false);
+                  setEditingBrand(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={async () => {
+                  try {
+                    const payload: any = {
+                      name: brandForm.name.trim(),
+                      slug:
+                        brandForm.slug.trim() ||
+                        brandForm.name
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]+/g, "-")
+                          .replace(/(^-|-$)/g, ""),
+                      description: brandForm.description,
+                      website: brandForm.website,
+                      email: brandForm.email,
+                      phone: brandForm.phone,
+                      status: brandForm.status,
+                      featured: brandForm.featured,
+                      visibleOnHome: brandForm.visibleOnHome,
+                      ...(brandForm.logoUrl
+                        ? { logo: { url: brandForm.logoUrl, alt: brandForm.logoAlt || brandForm.name } }
+                        : {}),
+                    };
+                    if (editingBrand) {
+                      await brandsApi.updateBrand(editingBrand._id, payload);
+                    } else {
+                      await brandsApi.createBrand(payload);
+                    }
+                    setShowCreateDialog(false);
+                    setEditingBrand(null);
+                    await loadBrands();
+                    await loadStats();
+                  } catch (error: any) {
+                    toast.error(
+                      error?.response?.data?.message || "Failed to save brand"
+                    );
+                  }
+                }}
+              >
+                {editingBrand ? "Update" : "Create"}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

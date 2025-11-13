@@ -52,14 +52,10 @@ const adminLogin = async (req, res) => {
       });
     }
 
-    // Check if account is locked
-    if (user.isLocked) {
-      return res.status(423).json({
-        success: false,
-        message:
-          "Account is temporarily locked due to too many failed login attempts",
-      });
-    }
+    // NOTE: Lockout behavior disabled — do not block login attempts based on lockUntil
+    // The historical behavior set `lockUntil` after several failed attempts.
+    // That logic has been removed/disabled in the User model. Keep this explicit
+    // comment so future maintainers understand the change.
 
     // Check if account is active
     if (user.status !== "active") {

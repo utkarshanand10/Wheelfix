@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAdmin } from "@/contexts/AdminContext";
 import { servicesApi } from "@/api/admin";
@@ -16,6 +16,18 @@ import {
   Clock,
   DollarSign,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 
 interface Service {
   _id: string;
@@ -33,10 +45,22 @@ interface Service {
     name: string;
     email: string;
   };
+
   primaryImage?: {
     url: string;
     alt: string;
   };
+  // Vehicle service specific fields
+  serviceName?: string;
+  originalPrice?: number;
+  vehicleInfo?: {
+    brand: string;
+    model: string;
+    fuel: string;
+  };
+  // Additional fields from raw data
+  name?: string;
+  raw?: any;
 }
 
 interface ServicesResponse {
@@ -79,6 +103,29 @@ export const AdminServices: React.FC = () => {
     null
   ); // tracked for future UI messaging
   const [editedPrices, setEditedPrices] = useState<Record<string, string>>({});
+  const importInputRef = useRef<HTMLInputElement | null>(null);
+  // Create dialog state & payload
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [createPayload, setCreatePayload] = useState<any>({
+    title: "",
+    description: "",
+    priceRupees: "",
+    category: "General Service",
+    status: "active",
+    visible: true,
+    type: "car",
+    applyToVehicle: false,
+    vehicle: { brand: "", model: "", fuel: "" },
+  });
+
+  // Quick edit dialog for vehicle-specific service metadata (replace window.prompt)
+  const [showQuickEditDialog, setShowQuickEditDialog] = useState(false);
+  const [quickEditPayload, setQuickEditPayload] = useState<{
+    serviceId?: string;
+    serviceName?: string;
+    description?: string;
+    category?: string;
+  }>({});
 
   // Only show categories that match the vehicle-services list (keeps filter small and relevant)
   const allowedCategories = [
@@ -127,7 +174,8 @@ export const AdminServices: React.FC = () => {
         return [];
       };
 
-      // If brand/model/fuel are selected, ask the vehicle-services endpoint
+      // PRIORITY: When brand/model/fuel filters are selected, use vehicle-services endpoint
+      // This ensures admin sees the same services and prices as the client panel
       let servicesData: any[] = [];
       let usedVehicleEndpoint = false;
 
@@ -139,60 +187,134 @@ export const AdminServices: React.FC = () => {
           fuel: selectedFuel,
         };
 
-        const response = await api.post("/vehicle-services", postBody);
-        const vData = response.data;
-        servicesData = extractArray(vData);
+        try {
+          const response = await api.post("/vehicle-services", postBody);
+          const vData = response.data;
+          servicesData = extractArray(vData);
 
-        // If vehicle-services returns empty, fall back to admin services endpoint
-        // This handles cases where brand/model keys differ between the UI and the static JSON
-        if (!servicesData || servicesData.length === 0) {
-          console.warn(
-            "vehicle-services returned empty for this selection, falling back to admin services. shape:",
-            vData
-          );
-
-          // Build admin params: do not send vehicle-only category names to server
-          const params: any = {
-            q: searchQuery || undefined,
-            // if categoryFilter is one of allowed vehicle categories, don't send it to admin API
-            category:
-              categoryFilter && !allowedCategories.includes(categoryFilter)
-                ? categoryFilter
-                : undefined,
-            status: statusFilter || undefined,
-            vehicleType: vehicleTypeFilter || undefined,
-            page: currentPage || undefined,
-          };
-
+          // Vehicle-services endpoint applies pricing overrides automatically
+          // If nothing found, fall back to admin services so the page remains usable
+          if (!servicesData || servicesData.length === 0) {
+            console.warn(
+              `No vehicle services found for ${selectedBrand} ${selectedModel} ${selectedFuel}. Falling back to admin services listing.`
+            );
+            try {
+              usedVehicleEndpoint = false;
+              const params: any = {
+                search: searchQuery || undefined,
+                // Only send category to admin API if it's NOT a vehicle-only category
+                category:
+                  categoryFilter &&
+                  !allowedCategories
+                    .map((c) => c.toLowerCase())
+                    .includes(String(categoryFilter).toLowerCase())
+                    ? categoryFilter
+                    : undefined,
+                status: statusFilter || undefined,
+                type: vehicleTypeFilter || undefined,
+                page: currentPage || undefined,
+                limit: 50,
+              };
+              const res = await servicesApi.getServices(params);
+              const aData = res.data;
+              servicesData = extractArray(aData);
+              const pag =
+                res.data?.pagination || res.data?.data?.pagination || null;
+              if (pag) setPagination(pag);
+            } catch (fallbackErr) {
+              console.error(
+                "Admin services fallback after empty vehicle-services failed:",
+                fallbackErr
+              );
+              servicesData = [];
+            }
+          }
+        } catch (err) {
+          console.error("Failed to fetch vehicle services:", err);
+          // Fall back to admin services when vehicle endpoint errors
           try {
+            usedVehicleEndpoint = false;
+            const params: any = {
+              search: searchQuery || undefined,
+              category:
+                categoryFilter &&
+                !allowedCategories
+                  .map((c) => c.toLowerCase())
+                  .includes(String(categoryFilter).toLowerCase())
+                  ? categoryFilter
+                  : undefined,
+              status: statusFilter || undefined,
+              type: vehicleTypeFilter || undefined,
+              page: currentPage || undefined,
+              limit: 50,
+            };
             const res = await servicesApi.getServices(params);
             const aData = res.data;
             servicesData = extractArray(aData);
-            // set pagination if present
             const pag =
               res.data?.pagination || res.data?.data?.pagination || null;
             if (pag) setPagination(pag);
-            usedVehicleEndpoint = false; // we are using admin data now
-          } catch (err) {
-            console.error("Admin fallback failed:", err);
+          } catch (fallbackErr) {
+            console.error(
+              "Admin services fallback after vehicle-services error failed:",
+              fallbackErr
+            );
             servicesData = [];
           }
+        }
+      } else if (selectedBrand && selectedModel && !selectedFuel) {
+        // Brand & model selected but no fuel — aggregate services across all fuels
+        // so the admin can still filter by brand+model without choosing fuel.
+        try {
+          usedVehicleEndpoint = true;
+          const fuelsRes = await api.get(
+            `/vehicle-services/fuel-types/${encodeURIComponent(selectedBrand)}/${encodeURIComponent(selectedModel)}`
+          );
+          const fuels = ((fuelsRes.data as any)?.fuelTypes || []) as string[];
+          const aggregated: any[] = [];
+          for (const f of fuels) {
+            try {
+              const resp = await api.post("/vehicle-services", {
+                brand: selectedBrand,
+                model: selectedModel,
+                fuel: f,
+              });
+              const arr = extractArray(resp.data);
+              // Tag each entry with its fuel for context if needed later
+              arr.forEach((s: any) =>
+                aggregated.push({ ...s, fuelFromAgg: f })
+              );
+            } catch (e) {
+              // continue other fuels
+            }
+          }
+          servicesData = aggregated;
+        } catch (e) {
+          console.error("Failed to aggregate vehicle services across fuels", e);
+          usedVehicleEndpoint = false;
+          servicesData = [];
         }
       } else {
         // Fallback to admin services endpoint so filters work without vehicle selection
         try {
           const params: any = {
-            q: searchQuery || undefined,
-            // If the selected category is from the vehicle-services list (allowedCategories),
-            // don't send it as a server-side category filter because admin categories differ.
-            // In that case we'll apply category filtering client-side below.
+            // Backend expects 'search' not 'q'
+            search: searchQuery || undefined,
+            // For admin-managed services, send the selected category directly.
+            // Vehicle-specific categories are not queried here because this branch is only used
+            // when a vehicle selection is NOT active.
             category:
-              categoryFilter && !allowedCategories.includes(categoryFilter)
+              categoryFilter &&
+              !allowedCategories
+                .map((c) => c.toLowerCase())
+                .includes(String(categoryFilter).toLowerCase())
                 ? categoryFilter
                 : undefined,
             status: statusFilter || undefined,
-            vehicleType: vehicleTypeFilter || undefined,
+            // Backend expects 'type' (car|bike), not 'vehicleType'
+            type: vehicleTypeFilter || undefined,
             page: currentPage || undefined,
+            limit: 50,
           };
           const res = await servicesApi.getServices(params);
           // admin API may return { services, pagination } or { data: { services } }
@@ -223,28 +345,60 @@ export const AdminServices: React.FC = () => {
       }
 
       // Normalize results — assign a stable local _id when missing and map common fields
+      // For vehicle services, preserve serviceName which is needed for price updates
       const normalized: any[] = (servicesData as any[]).map(
-        (s: any, idx: number) => ({
-          // preserve origin fields, provide UI-friendly names
-          _id:
+        (s: any, idx: number) => {
+          // Vehicle services use serviceName, admin services use title/name
+          const serviceName = s.serviceName || s.title || s.name || "";
+          const serviceId =
             s._id ||
             s.id ||
-            `vs_${selectedBrand}_${selectedModel}_${selectedFuel}_${idx}`,
-          title: s.title || s.serviceName || s.name || "",
-          description: s.description || s.desc || "",
-          price: typeof s.price === "number" ? s.price : Number(s.price) || 0,
-          durationMinutes:
-            s.durationMinutes || s.estimatedTime || s.duration || 60,
-          category: s.category || s.type || "General Service",
-          status: s.status || "active",
-          featured: !!s.featured,
-          popular: !!s.popular,
-          primaryImage: s.primaryImage || s.image || null,
-          raw: s,
-        })
+            `vs_${selectedBrand}_${selectedModel}_${selectedFuel}_${idx}`;
+
+          return {
+            // preserve origin fields, provide UI-friendly names
+            _id: serviceId,
+            title: s.title || s.serviceName || s.name || "",
+            // Preserve serviceName for vehicle services (needed for price override API)
+            serviceName: serviceName,
+            description: s.description || s.desc || "",
+            // Price handling: vehicle-services endpoint now returns prices in RUPEES
+            // Both JSON prices and override prices are normalized to rupees
+            // For admin services, prices are in paise (divide by 100)
+            price: usedVehicleEndpoint
+              ? typeof s.price === "number"
+                ? s.price
+                : Number(s.price) || 0 // Already in rupees
+              : (typeof s.price === "number" ? s.price : Number(s.price) || 0) /
+                100, // Convert paise to rupees
+            // Also preserve originalPrice if available (for reference)
+            originalPrice:
+              s.originalPrice ||
+              (typeof s.price === "number" ? s.price : Number(s.price) || 0),
+            durationMinutes:
+              s.durationMinutes || s.estimatedTime || s.duration || 60,
+            category: s.category || s.type || "General Service",
+            status: s.status || "active",
+            featured: !!s.featured,
+            popular: !!s.popular,
+            primaryImage: s.primaryImage || s.image || null,
+            // Store raw data for reference
+            raw: s,
+            // Store vehicle info for price updates
+            vehicleInfo: usedVehicleEndpoint
+              ? {
+                  brand: selectedBrand,
+                  model: selectedModel,
+                  fuel: selectedFuel,
+                }
+              : null,
+          };
+        }
       );
 
-      // Build available categories from the unfiltered normalized results (intersection with allowed list)
+      // Build available categories based on data source:
+      // - For vehicle-specific view: restrict to known vehicle categories (intersection)
+      // - For admin-managed view: use whatever categories are present in the data
       try {
         const present = Array.from(
           new Set(
@@ -253,14 +407,20 @@ export const AdminServices: React.FC = () => {
               .filter(Boolean)
           )
         );
-        const intersection = allowedCategories.filter((c) =>
-          present.map((p) => p.toLowerCase()).includes(c.toLowerCase())
-        );
-        setAvailableCategoriesState(
-          intersection.length > 0 ? intersection : allowedCategories
-        );
+        if (usedVehicleEndpoint) {
+          const intersection = allowedCategories.filter((c) =>
+            present.map((p) => p.toLowerCase()).includes(c.toLowerCase())
+          );
+          setAvailableCategoriesState(
+            intersection.length > 0 ? intersection : allowedCategories
+          );
+        } else {
+          setAvailableCategoriesState(present);
+        }
       } catch (e) {
-        setAvailableCategoriesState(allowedCategories);
+        setAvailableCategoriesState(
+          usedVehicleEndpoint ? allowedCategories : []
+        );
       }
 
       // Apply client-side filters so the Filter button and selects are effective
@@ -383,38 +543,18 @@ export const AdminServices: React.FC = () => {
     selectedFuel,
   ]);
 
-  // If navigated with state.openCreate -> prompt/create a simple service
+  // If navigated with state.openCreate -> open the Create dialog (safer than prompt)
   useEffect(() => {
     const state: any = (location && (location as any).state) || {};
     if (state.openCreate) {
-      // simple prompt flow: ask for title and create minimal service
-      const title = window.prompt("Enter service title");
-      if (title && title.trim().length > 0) {
-        (async () => {
-          try {
-            await servicesApi.createService({
-              title: title.trim(),
-              description: "Auto-created service. Please edit details.",
-              price: 0,
-              durationMinutes: 60,
-              category: "General Service",
-              status: "active",
-              type: "car",
-            });
-            await loadServices();
-          } catch (err) {
-            console.error("Failed to create service from quick action:", err);
-            // Let the user know via alert for now
-            alert("Failed to create service. See console for details.");
-          } finally {
-            // clear navigation state
-            navigate(location.pathname, { replace: true, state: {} });
-          }
-        })();
-      } else {
-        // clear state even if canceled
-        navigate(location.pathname, { replace: true, state: {} });
-      }
+      setCreatePayload((p: any) => ({
+        ...p,
+        title: state.title || "",
+        description: state.description || p.description,
+      }));
+      setShowCreateDialog(true);
+      // clear navigation state
+      navigate(location.pathname, { replace: true, state: {} });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -526,6 +666,429 @@ export const AdminServices: React.FC = () => {
     }
   };
 
+  // -------- Bulk Export / Import (Admin services only) --------
+  const fetchAllAdminServices = async (): Promise<any[]> => {
+    const all: any[] = [];
+    try {
+      // Try to iterate pages until exhausted
+      let page = 1;
+      // Set a safe upper bound to avoid infinite loops
+      const MAX_PAGES = 50;
+      while (page <= MAX_PAGES) {
+        const res = await servicesApi.getServices({ page });
+        const data = res.data;
+        const list =
+          (Array.isArray(data?.services) && data.services) ||
+          (Array.isArray(data?.data?.services) && data.data.services) ||
+          (Array.isArray(data) && data) ||
+          [];
+        if (list.length === 0) break;
+        all.push(...list);
+        const pag = data?.pagination ||
+          data?.data?.pagination || { hasNextPage: false };
+        if (!pag?.hasNextPage) break;
+        page += 1;
+      }
+    } catch (err) {
+      console.error("Failed to fetch all services for export", err);
+    }
+    return all;
+  };
+
+  const toCsv = (rows: any[]): string => {
+    const headers = [
+      "id",
+      "title",
+      "description",
+      "pricePaise",
+      "priceRupees",
+      "category",
+      "status",
+      "visible",
+      "type",
+    ];
+    const escape = (v: any) => {
+      const s = v === undefined || v === null ? "" : String(v);
+      if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+      return s;
+    };
+    const lines = [
+      headers.join(","),
+      ...rows.map((r) =>
+        [
+          r._id || r.id || "",
+          r.title || r.name || "",
+          r.description || "",
+          typeof r.price === "number" ? r.price : "",
+          typeof r.price === "number"
+            ? Math.round((r.price as number) / 100)
+            : "",
+          r.category || "",
+          r.status || "",
+          typeof r.visible === "boolean" ? r.visible : "",
+          r.type || "",
+        ]
+          .map(escape)
+          .join(",")
+      ),
+    ];
+    return lines.join("\n");
+  };
+
+  const downloadBlob = (
+    content: string,
+    filename: string,
+    type = "text/csv;charset=utf-8;"
+  ) => {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  };
+
+  const handleExport = async () => {
+    try {
+      const data = await fetchAllAdminServices();
+      if (!data.length) {
+        alert("No services to export.");
+        return;
+      }
+      const csv = toCsv(data);
+      const ts = new Date().toISOString().replace(/[:.]/g, "-");
+      downloadBlob(csv, `services-export-${ts}.csv`);
+    } catch (err) {
+      console.error("Export failed", err);
+      alert("Failed to export services.");
+    }
+  };
+
+  const parseCsv = (text: string): any[] => {
+    // Auto-detect delimiter: comma, semicolon, or tab
+    const lines = text.split(/\r?\n/).filter((l) => l !== "");
+    if (lines.length === 0) return [];
+    const sniff = lines[0];
+    const counts = (
+      [
+        [",", (sniff.match(/,/g) || []).length] as [string, number],
+        [";", (sniff.match(/;/g) || []).length] as [string, number],
+        ["\t", (sniff.match(/\t/g) || []).length] as [string, number],
+        ["|", (sniff.match(/\|/g) || []).length] as [string, number],
+      ] as [string, number][]
+    ).sort((a, b) => b[1] - a[1]);
+    const delim = counts[0][1] > 0 ? counts[0][0] : ",";
+
+    const splitLine = (line: string): string[] => {
+      const cells: string[] = [];
+      let cur = "";
+      let inQuote = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"' && line[i + 1] === '"') {
+          cur += '"';
+          i++;
+        } else if (ch === '"') {
+          inQuote = !inQuote;
+        } else if (line.startsWith(delim, i) && !inQuote) {
+          cells.push(cur);
+          cur = "";
+          i += delim.length - 1;
+        } else {
+          cur += ch;
+        }
+      }
+      cells.push(cur);
+      return cells;
+    };
+
+    const headersRaw = splitLine(lines[0]).map((h) =>
+      h.trim().replace(/^"|"$/g, "")
+    );
+    const headers =
+      headersRaw.length > 1
+        ? headersRaw
+        : // If only one header detected, try tab as fallback
+          splitLine(lines[0].replace(/,/g, "\t")).map((h) =>
+            h.trim().replace(/^"|"$/g, "")
+          );
+
+    const rows: any[] = [];
+    for (let li = 1; li < lines.length; li++) {
+      const cells = splitLine(lines[li]);
+      const row: any = {};
+      headers.forEach((h, idx) => (row[h] = (cells[idx] || "").trim()));
+      // Drop rows that are entirely empty
+      const nonEmpty = Object.values(row).some(
+        (v) => String(v || "").trim() !== ""
+      );
+      if (nonEmpty) rows.push(row);
+    }
+    return rows;
+  };
+
+  // Helpers for vehicle-specific bulk import
+  const normalizeHeader = (h: string) =>
+    String(h || "")
+      .toLowerCase()
+      .replace(/[\s_/]+/g, "")
+      .replace(/[().-]/g, "");
+
+  const parseMoneyToRupees = (v: any): number | undefined => {
+    if (v === undefined || v === null) return undefined;
+    const s = String(v);
+    if (!s) return undefined;
+    const digits = s.replace(/[^0-9.]/g, "");
+    if (!digits) return undefined;
+    const n = Number(digits);
+    return Number.isFinite(n) ? n : undefined;
+  };
+
+  const rowHasVehicleColumns = (row: any): boolean => {
+    const keys = Object.keys(row || {}).map(normalizeHeader);
+    const hasBrand =
+      keys.includes("carmanufecturer") ||
+      keys.includes("manufacturer") ||
+      keys.includes("brand");
+    const hasModel = keys.includes("carmodel") || keys.includes("model");
+    const hasFuelCols =
+      keys.includes("petrolcng") ||
+      keys.includes("diesel") ||
+      keys.includes("electric");
+    const hasPriceCols =
+      keys.includes("baseprice") ||
+      keys.includes("discountprice") ||
+      keys.includes("price");
+    return hasBrand && hasModel && hasFuelCols && hasPriceCols;
+  };
+
+  const getCell = (row: any, variants: string[]): any => {
+    for (const v of variants) {
+      const hit = Object.keys(row).find(
+        (k) => normalizeHeader(k) === normalizeHeader(v)
+      );
+      if (hit) return row[hit];
+    }
+    return undefined;
+  };
+
+  // Import rows as vehicle-specific overrides.
+  // For each row we may create up to two overrides (Petrol/CNG and Diesel) for Standard/Comprehensive buckets.
+  const importVehicleOverridesFromRows = async (rows: any[]) => {
+    let created = 0;
+    for (const raw of rows) {
+      if (!rowHasVehicleColumns(raw)) continue;
+
+      const brand = String(
+        getCell(raw, ["CAR MANUFECTURER", "Manufacturer", "Brand"]) || ""
+      )
+        .trim()
+        .toUpperCase();
+      const model = String(getCell(raw, ["CAR MODEL", "Model"]) || "").trim();
+
+      // Service names derived from frequency columns
+      const stdCol = getCell(raw, [
+        "STANDARD SERVICE",
+        "EVERY 10000 KMS / 6 MONTHS",
+      ]);
+      const compCol = getCell(raw, [
+        "COMPREHENSIVE SERVICE",
+        "EVERY 20000 KMS / 1 YEAR",
+      ]);
+
+      // Prices
+      const basePrice = parseMoneyToRupees(
+        getCell(raw, ["BASE PRICE", "Price"])
+      );
+      const discountPrice = parseMoneyToRupees(
+        getCell(raw, ["DISCOUNT PRICE", "Discount"])
+      );
+      const effectivePrice = discountPrice ?? basePrice;
+      // If no price on row, skip
+      if (effectivePrice === undefined) continue;
+      const pricePaise = Math.round((effectivePrice || 0) * 100);
+
+      // Fuels markers: value present means row pertains to that fuel
+      const petrolMarker = getCell(raw, [
+        "PETROL /CNG",
+        "PETROL/CNG",
+        "PETROL",
+        "CNG",
+      ]);
+      const dieselMarker = getCell(raw, ["DIESEL"]);
+      const fuels: string[] = [];
+      if (String(petrolMarker ?? "").length > 0) fuels.push("Petrol /CNG");
+      if (String(dieselMarker ?? "").length > 0) fuels.push("DIESEL");
+      // Fallback: if neither explicitly present, attempt both
+      if (fuels.length === 0) fuels.push("Petrol /CNG", "DIESEL");
+
+      // Build service names array present on the row
+      const serviceNames: string[] = [];
+      if (String(stdCol || "").length > 0)
+        serviceNames.push("Standard Service");
+      if (String(compCol || "").length > 0)
+        serviceNames.push("Comprehensive Service");
+      // Fallback to generic when not specified
+      if (serviceNames.length === 0) serviceNames.push("Service On Demand");
+
+      for (const fuelRaw of fuels) {
+        const fuel = /diesel/i.test(fuelRaw)
+          ? "DIESEL"
+          : /electric/i.test(fuelRaw)
+            ? "ELECTRIC"
+            : "PETROL /CNG";
+        for (const serviceName of serviceNames) {
+          try {
+            await servicesApi.updateVehicleServicePrice({
+              brand,
+              model,
+              fuel,
+              serviceName,
+              price: pricePaise,
+            });
+            created += 1;
+          } catch (e) {
+            console.error("Vehicle override upsert failed", {
+              brand,
+              model,
+              fuel,
+              serviceName,
+              pricePaise,
+              raw,
+            });
+          }
+        }
+      }
+    }
+    return created;
+  };
+
+  const upsertServices = async (items: any[]) => {
+    // Strategy:
+    // - If 'id' present => update
+    // - Else if 'title' matches existing service title (case-insensitive) => update first match
+    // - Else create
+    const existing = await fetchAllAdminServices();
+    const titleToService: Record<string, any> = {};
+    existing.forEach((s: any) => {
+      const key = String(s.title || s.name || "")
+        .toLowerCase()
+        .trim();
+      if (key) titleToService[key] = s;
+    });
+
+    let created = 0;
+    let updated = 0;
+
+    for (const raw of items) {
+      try {
+        // Skip obvious non-data or section header rows
+        const cellsCount = Object.keys(raw || {}).length;
+        if (
+          cellsCount <= 1 &&
+          !rowHasVehicleColumns(raw) &&
+          !String(raw?.title || raw?.name || "").trim()
+        ) {
+          continue;
+        }
+        const id = raw.id || raw._id;
+        const title = (raw.title || raw.name || "").trim();
+        const description = raw.description || "";
+        // Prefer explicit pricePaise, otherwise convert priceRupees
+        const pricePaise =
+          raw.pricePaise !== undefined && raw.pricePaise !== ""
+            ? Number(raw.pricePaise)
+            : raw.priceInRupees !== undefined && raw.priceInRupees !== ""
+              ? Math.round(Number(raw.priceInRupees) * 100)
+              : undefined;
+        const payload: any = {
+          ...(title ? { title } : {}),
+          ...(description ? { description } : {}),
+          ...(typeof pricePaise === "number" && !Number.isNaN(pricePaise)
+            ? { price: pricePaise }
+            : {}),
+          ...(raw.category ? { category: raw.category } : {}),
+          ...(raw.status ? { status: raw.status } : {}),
+          ...(raw.visible !== undefined
+            ? {
+                visible: String(raw.visible) === "true" || raw.visible === true,
+              }
+            : {}),
+          ...(raw.type ? { type: raw.type } : {}),
+        };
+
+        // Do not call API if nothing meaningful to upsert
+        if (Object.keys(payload).length === 0) {
+          continue;
+        }
+        // Prevent creating empty services: require at least a title on create
+        if (!id && !title) {
+          continue;
+        }
+
+        if (id) {
+          await servicesApi.updateService(String(id), payload);
+          updated += 1;
+        } else if (title && titleToService[title.toLowerCase()]) {
+          const svc = titleToService[title.toLowerCase()];
+          await servicesApi.updateService(String(svc._id || svc.id), payload);
+          updated += 1;
+        } else {
+          await servicesApi.createService(payload);
+          created += 1;
+        }
+      } catch (e) {
+        console.error("Upsert failed for row", raw, e);
+      }
+    }
+
+    alert(`Import completed. Created: ${created}, Updated: ${updated}`);
+  };
+
+  const handleImportFile = async (file: File) => {
+    try {
+      const text = await file.text();
+      let items: any[] = [];
+      if (file.name.toLowerCase().endsWith(".json")) {
+        const parsed = JSON.parse(text);
+        items = Array.isArray(parsed) ? parsed : parsed?.services || [];
+      } else {
+        items = parseCsv(text);
+      }
+      if (!Array.isArray(items) || items.length === 0) {
+        alert("No rows found to import.");
+        return;
+      }
+      // Detect if these rows look like vehicle-specific data
+      const isVehicleCsv = items.some((r) => rowHasVehicleColumns(r));
+
+      if (
+        !window.confirm(
+          isVehicleCsv
+            ? `Import ${items.length} vehicle-specific service row(s)? This will create overrides for the selected brand/model/fuel combinations.`
+            : `Import ${items.length} service(s)? This will create or update services.`
+        )
+      ) {
+        return;
+      }
+      if (isVehicleCsv) {
+        const created = await importVehicleOverridesFromRows(items);
+        alert(`Vehicle overrides import completed. Upserts: ${created}`);
+      } else {
+        await upsertServices(items);
+      }
+      await loadServices();
+    } catch (err) {
+      console.error("Import failed", err);
+      alert("Failed to import services. Please check the file format.");
+    } finally {
+      if (importInputRef.current) importInputRef.current.value = "";
+    }
+  };
+
   const handleServiceAction = async (serviceId: string, action: string) => {
     try {
       // If current list comes from vehicle-services, route actions to override endpoint
@@ -580,35 +1143,14 @@ export const AdminServices: React.FC = () => {
             return;
           }
           case "edit": {
-            // Prompt for editable fields besides price (which is inline)
-            const desc = window.prompt(
-              "Update description",
-              svc.description || ""
-            );
-            const durStr = window.prompt(
-              "Update duration in minutes",
-              String(svc.durationMinutes || 60)
-            );
-            const cat = window.prompt("Update category", svc.category || "");
-            const durationMinutes = durStr ? parseInt(durStr, 10) : undefined;
-            await api.authPut("/vehicle-services/override/price", {
-              ...commonPayload,
-              ...(desc !== null ? { description: desc } : {}),
-              ...(durationMinutes ? { durationMinutes } : {}),
-              ...(cat !== null ? { category: cat } : {}),
+            // Open the quick-edit dialog (replaces window.prompt)
+            setQuickEditPayload({
+              serviceId: svc._id,
+              serviceName,
+              description: svc.description || "",
+              category: svc.category || "",
             });
-            setServices((prev) =>
-              prev.map((s) =>
-                s._id === svc._id
-                  ? {
-                      ...s,
-                      description: desc ?? s.description,
-                      durationMinutes: durationMinutes || s.durationMinutes,
-                      category: cat ?? s.category,
-                    }
-                  : s
-              )
-            );
+            setShowQuickEditDialog(true);
             return;
           }
           default:
@@ -647,6 +1189,76 @@ export const AdminServices: React.FC = () => {
       }
     } catch (error) {
       console.error(`Service ${action} failed:`, error);
+    }
+  };
+
+  // Handler to create admin service or vehicle-specific override from dialog
+  const handleCreateService = async () => {
+    try {
+      if (!createPayload.title || !createPayload.title.trim()) {
+        alert("Please provide a service title");
+        return;
+      }
+
+      const paise = Math.round(
+        (parseFloat(String(createPayload.priceRupees)) || 0) * 100
+      );
+
+      // If admin wants to create a vehicle-specific override
+      if (
+        createPayload.applyToVehicle &&
+        createPayload.vehicle?.brand &&
+        createPayload.vehicle?.model &&
+        createPayload.vehicle?.fuel
+      ) {
+        const payload: any = {
+          brand: createPayload.vehicle.brand,
+          model: createPayload.vehicle.model,
+          fuel: createPayload.vehicle.fuel,
+          serviceName: createPayload.title.trim(),
+          price: paise, // paise as vehicle override expects
+          description: createPayload.description,
+          category: createPayload.category,
+          featured: false,
+          status: createPayload.status,
+          visible: createPayload.visible,
+        };
+
+        await api.authPut("/vehicle-services/override/price", payload);
+
+        // If current listing matches the vehicle we updated, reload
+        if (
+          selectedBrand === createPayload.vehicle.brand &&
+          selectedModel === createPayload.vehicle.model &&
+          selectedFuel === createPayload.vehicle.fuel
+        ) {
+          await loadServices();
+        }
+      } else {
+        // Create admin-managed service (prices in paise)
+        await servicesApi.createService({
+          title: createPayload.title.trim(),
+          description: createPayload.description,
+          price: paise,
+          category: createPayload.category,
+          status: createPayload.status,
+          visible: createPayload.visible,
+          type: createPayload.type,
+        });
+        // If we were in vehicle-specific view, switch back to admin view so the new service is visible
+        if (selectedBrand || selectedModel || selectedFuel) {
+          setSelectedBrand("");
+          setSelectedModel("");
+          setSelectedFuel("");
+          setCurrentPage(1);
+        }
+        await loadServices();
+      }
+
+      setShowCreateDialog(false);
+    } catch (err) {
+      console.error("Failed to create service:", err);
+      alert("Failed to create service. See console for details.");
     }
   };
 
@@ -699,39 +1311,378 @@ export const AdminServices: React.FC = () => {
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </button>
-          {dataSource && (
+          {/* Bulk Export / Import controls (admin services) */}
+          <button
+            onClick={handleExport}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+            title="Export all admin services to CSV"
+          >
+            Export
+          </button>
+          <input
+            ref={importInputRef}
+            type="file"
+            accept=".csv,application/json"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) handleImportFile(f);
+            }}
+          />
+          <button
+            onClick={() => importInputRef.current?.click()}
+            className="px-4 py-2 text-sm font-medium text-white bg-gray-700 rounded-md hover:bg-gray-800"
+            title="Import services from CSV/JSON"
+          >
+            Import
+          </button>
+          {dataSource === "vehicle" &&
+            selectedBrand &&
+            selectedModel &&
+            selectedFuel && (
+              <span className="hidden md:inline-flex items-center px-3 py-2 text-xs font-medium rounded-md bg-blue-100 text-blue-800">
+                Vehicle Services: {selectedBrand} {selectedModel} (
+                {selectedFuel})
+                <span className="ml-2 text-xs text-blue-600">
+                  • Price updates apply to this vehicle combination
+                </span>
+              </span>
+            )}
+          {dataSource === "admin" && (
             <span className="hidden md:inline-flex items-center px-3 py-2 text-xs font-medium rounded-md bg-gray-100 text-gray-700">
-              Source:{" "}
-              {dataSource === "vehicle" ? "Vehicle services" : "Admin services"}
+              Admin Services
+              {(!selectedBrand || !selectedModel || !selectedFuel) && (
+                <span className="ml-2 text-xs text-gray-500">
+                  • Select Brand, Model, and Fuel to view vehicle-specific
+                  services
+                </span>
+              )}
             </span>
           )}
           {hasPermission("manage_services") && (
-            <button
-              onClick={async () => {
-                const title = window.prompt("Enter service title");
-                if (!title || !title.trim()) return;
-                try {
-                  await servicesApi.createService({
-                    title: title.trim(),
+            <>
+              <button
+                onClick={() => {
+                  // open dialog by setting state below
+                  setShowCreateDialog(true);
+                  // initialize form
+                  setCreatePayload({
+                    title: "",
                     description: "",
-                    price: 0,
-                    durationMinutes: 60,
+                    priceRupees: "",
                     category: "General Service",
                     status: "active",
+                    visible: true,
                     type: "car",
+                    applyToVehicle: false,
+                    vehicle: {
+                      brand: selectedBrand || "",
+                      model: selectedModel || "",
+                      fuel: selectedFuel || "",
+                    },
                   });
-                  await loadServices();
-                  alert("Service created");
-                } catch (err) {
-                  console.error("Failed to create service:", err);
-                  alert("Failed to create service");
-                }
-              }}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Service
-            </button>
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Service
+              </button>
+
+              {/* Create Service Dialog */}
+              <Dialog
+                open={showCreateDialog}
+                onOpenChange={setShowCreateDialog}
+              >
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle className="text-lg font-semibold">
+                      Create Service
+                    </DialogTitle>
+                    <DialogDescription>
+                      Fill in the details below to add a new service or create a
+                      vehicle-specific override.
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="svc-title">Title</Label>
+                      <Input
+                        id="svc-title"
+                        value={createPayload.title}
+                        onChange={(e) =>
+                          setCreatePayload({
+                            ...createPayload,
+                            title: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="svc-desc">Description</Label>
+                      <Textarea
+                        id="svc-desc"
+                        value={createPayload.description}
+                        onChange={(e) =>
+                          setCreatePayload({
+                            ...createPayload,
+                            description: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4">
+                      <div>
+                        <Label htmlFor="svc-price">Price (₹)</Label>
+                        <Input
+                          id="svc-price"
+                          type="number"
+                          value={createPayload.priceRupees}
+                          onChange={(e) =>
+                            setCreatePayload({
+                              ...createPayload,
+                              priceRupees: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Category</Label>
+                        <Input
+                          value={createPayload.category}
+                          onChange={(e) =>
+                            setCreatePayload({
+                              ...createPayload,
+                              category: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          checked={createPayload.visible}
+                          onCheckedChange={(v) =>
+                            setCreatePayload({ ...createPayload, visible: !!v })
+                          }
+                        />
+                        <Label>Visible</Label>
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-3">
+                      <div className="text-sm font-medium mb-2">
+                        Apply to specific vehicle
+                      </div>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <Label>Brand</Label>
+                          <select
+                            className="w-full px-3 py-2 border rounded"
+                            value={createPayload.vehicle.brand}
+                            onChange={async (e) => {
+                              const brand = e.target.value;
+                              setCreatePayload({
+                                ...createPayload,
+                                vehicle: {
+                                  ...createPayload.vehicle,
+                                  brand,
+                                  model: "",
+                                  fuel: "",
+                                },
+                              });
+                              // fetch models for this brand for the dialog
+                              try {
+                                const res = await api.get(
+                                  `/vehicle-services/models/${encodeURIComponent(brand)}`
+                                );
+                                const modelsRes =
+                                  (res.data as any)?.models || [];
+                                setModels(modelsRes);
+                              } catch (err) {
+                                console.error(
+                                  "Failed to load models for brand in dialog",
+                                  err
+                                );
+                                setModels([]);
+                              }
+                            }}
+                          >
+                            <option value="">(none)</option>
+                            {brands.map((b) => (
+                              <option key={b} value={b}>
+                                {b}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <Label>Model</Label>
+                          <select
+                            className="w-full px-3 py-2 border rounded"
+                            value={createPayload.vehicle.model}
+                            onChange={async (e) => {
+                              const model = e.target.value;
+                              setCreatePayload({
+                                ...createPayload,
+                                vehicle: {
+                                  ...createPayload.vehicle,
+                                  model,
+                                  fuel: "",
+                                },
+                              });
+                              try {
+                                const res = await api.get(
+                                  `/vehicle-services/fuel-types/${encodeURIComponent(createPayload.vehicle.brand)}/${encodeURIComponent(model)}`
+                                );
+                                const fuels =
+                                  (res.data as any)?.fuelTypes || [];
+                                setFuelTypes(fuels);
+                              } catch (err) {
+                                console.error(
+                                  "Failed to load fuel types for dialog model",
+                                  err
+                                );
+                                setFuelTypes([]);
+                              }
+                            }}
+                          >
+                            <option value="">(none)</option>
+                            {models.map((m) => (
+                              <option key={m} value={m}>
+                                {m}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <Label>Fuel</Label>
+                          <select
+                            className="w-full px-3 py-2 border rounded"
+                            value={createPayload.vehicle.fuel}
+                            onChange={(e) =>
+                              setCreatePayload({
+                                ...createPayload,
+                                vehicle: {
+                                  ...createPayload.vehicle,
+                                  fuel: e.target.value,
+                                },
+                              })
+                            }
+                          >
+                            <option value="">(none)</option>
+                            {fuelTypes.map((f) => (
+                              <option key={f} value={f}>
+                                {f}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <div className="mt-2 text-sm text-slate-600">
+                        Check the box below to create a vehicle-specific
+                        override for the selected vehicle.
+                      </div>
+                      <div className="flex items-center mt-2">
+                        <Switch
+                          checked={createPayload.applyToVehicle}
+                          onCheckedChange={(v) =>
+                            setCreatePayload({
+                              ...createPayload,
+                              applyToVehicle: !!v,
+                            })
+                          }
+                        />
+                        <Label className="ml-2">
+                          Create vehicle-specific override
+                        </Label>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        onClick={() => setShowCreateDialog(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleCreateService}
+                        className="bg-blue-600 text-white"
+                      >
+                        Create
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+                {/* Quick Edit Dialog for vehicle-specific metadata (description/category) */}
+                <Dialog open={showQuickEditDialog} onOpenChange={setShowQuickEditDialog}>
+                  <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                      <DialogTitle>Quick Edit Service</DialogTitle>
+                      <DialogDescription>
+                        Update service description or category for this vehicle selection.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Service</label>
+                        <div className="text-sm text-gray-900">
+                          {quickEditPayload.serviceName}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <Textarea
+                          value={quickEditPayload.description}
+                          onChange={(e) => setQuickEditPayload({ ...quickEditPayload, description: e.target.value })}
+                          rows={4}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                        <Input
+                          value={quickEditPayload.category}
+                          onChange={(e) => setQuickEditPayload({ ...quickEditPayload, category: e.target.value })}
+                        />
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button variant="ghost" onClick={() => setShowQuickEditDialog(false)}>Cancel</Button>
+                        <Button
+                          onClick={async () => {
+                            try {
+                              const svcId = quickEditPayload.serviceId;
+                              if (!svcId) return;
+                              const payload: any = {
+                                brand: selectedBrand,
+                                model: selectedModel,
+                                fuel: selectedFuel,
+                                serviceName: quickEditPayload.serviceName,
+                              };
+                              if (quickEditPayload.description !== undefined) payload.description = quickEditPayload.description;
+                              if (quickEditPayload.category !== undefined) payload.category = quickEditPayload.category;
+                              await api.authPut('/vehicle-services/override/price', payload);
+                              setServices((prev) => prev.map((s) => s._id === svcId ? { ...s, description: quickEditPayload.description ?? s.description, category: quickEditPayload.category ?? s.category } : s));
+                              setShowQuickEditDialog(false);
+                            } catch (err) {
+                              console.error('Failed to quick-edit service', err);
+                              alert('Failed to update service. See console for details.');
+                            }
+                          }}
+                          className="bg-blue-600 text-white"
+                        >
+                          Save
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+            </>
           )}
         </div>
       </div>
@@ -916,8 +1867,22 @@ export const AdminServices: React.FC = () => {
             </div>
           </div>
         ) : services.length === 0 ? (
-          <div className="col-span-full text-center py-12 text-gray-500">
-            No services found
+          <div className="col-span-full text-center py-12">
+            <p className="text-gray-500 text-lg mb-2">No services found</p>
+            {selectedBrand && selectedModel && selectedFuel ? (
+              <p className="text-sm text-gray-400">
+                No vehicle services available for {selectedBrand}{" "}
+                {selectedModel} ({selectedFuel}).
+                <br />
+                Services may need to be added to the vehicle services data file.
+              </p>
+            ) : (
+              <p className="text-sm text-gray-400">
+                {!selectedBrand || !selectedModel || !selectedFuel
+                  ? "Select Brand, Model, and Fuel to view vehicle-specific services, or services may need to be created."
+                  : "Try adjusting your filters or create a new service."}
+              </p>
+            )}
           </div>
         ) : (
           services.map((service) => (
@@ -950,78 +1915,145 @@ export const AdminServices: React.FC = () => {
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4" />
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          min={0}
-                          step={50}
-                          value={editedPrices[service._id] ?? service.price}
-                          onChange={(e) =>
-                            setEditedPrices((prev) => ({
-                              ...prev,
-                              [service._id]: e.target.value,
-                            }))
-                          }
-                          className="w-28 px-2 py-1 border border-gray-300 rounded"
-                        />
+                      <span className="text-xs text-gray-500">₹</span>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min={0}
+                            step={50}
+                            placeholder="Price in ₹"
+                            value={
+                              editedPrices[service._id] ??
+                              (service.price ? service.price.toFixed(0) : "")
+                            }
+                            onChange={(e) =>
+                              setEditedPrices((prev) => ({
+                                ...prev,
+                                [service._id]: e.target.value,
+                              }))
+                            }
+                            className="w-28 px-2 py-1 border border-gray-300 rounded"
+                          />
+                        </div>
+                        {/* Info text for vehicle services */}
+                        {dataSource === "vehicle" && (
+                          <span className="text-xs text-blue-600">
+                            Price for {selectedBrand} {selectedModel} (
+                            {selectedFuel})
+                          </span>
+                        )}
                         <button
                           onClick={async () => {
                             const input = editedPrices[service._id];
-                            const newPrice = Number(input ?? service.price);
-                            if (Number.isNaN(newPrice) || newPrice < 0) {
+                            // Get current price in rupees
+                            // service.price is already in rupees for vehicle services
+                            const priceInRupees = input
+                              ? Number(input)
+                              : service.price
+                                ? service.price
+                                : 0;
+
+                            if (
+                              Number.isNaN(priceInRupees) ||
+                              priceInRupees < 0
+                            ) {
                               alert("Please enter a valid price");
                               return;
                             }
+
+                            // For vehicle services: PricingRule stores prices in PAISE
+                            // Convert rupees to paise (1 rupee = 100 paise)
+                            // For admin services: Service model also stores in paise
+                            const newPriceInPaise = Math.round(
+                              priceInRupees * 100
+                            );
+
                             try {
-                              // If vehicle selection is active, use vehicle-services override endpoint
+                              // PRIORITY: When vehicle filters are selected, always use vehicle-services override
+                              // This ensures price updates are vehicle-specific and show in client panel
                               if (
                                 selectedBrand &&
                                 selectedModel &&
                                 selectedFuel
                               ) {
+                                // Get serviceName from the service data
+                                // Vehicle services use serviceName field, which is preserved in normalization
                                 const serviceName =
-                                  (service as any).raw?.serviceName ||
-                                  service.title;
-                                await api.authPut(
-                                  "/vehicle-services/override/price",
-                                  {
-                                    brand: selectedBrand,
-                                    model: selectedModel,
-                                    fuel: selectedFuel,
-                                    serviceName,
-                                    price: newPrice,
-                                  }
+                                  service.serviceName ||
+                                  service.raw?.serviceName ||
+                                  service.title ||
+                                  (service as any).name;
+
+                                if (!serviceName) {
+                                  alert(
+                                    "Cannot update price: Service name not found"
+                                  );
+                                  return;
+                                }
+
+                                // Update price via vehicle-services override endpoint
+                                // This creates/updates a PricingRule that applies to this specific vehicle combination
+                                await servicesApi.updateVehicleServicePrice({
+                                  brand: selectedBrand,
+                                  model: selectedModel,
+                                  fuel: selectedFuel,
+                                  serviceName: serviceName,
+                                  price: newPriceInPaise,
+                                });
+
+                                console.log(
+                                  `Price updated for ${serviceName} (${selectedBrand} ${selectedModel} ${selectedFuel}): ₹${priceInRupees}`
                                 );
                               } else {
-                                // For admin services, update the service directly
+                                // For admin services (no vehicle filters), update the service directly in database
                                 // Check if this is an admin service (has _id that doesn't start with 'vs_')
                                 if (
                                   service._id &&
                                   !service._id.startsWith("vs_")
                                 ) {
                                   await servicesApi.updateService(service._id, {
-                                    price: newPrice,
+                                    price: newPriceInPaise,
                                   });
                                 } else {
-                                  // For vehicle services without selection, we can't update
+                                  // Cannot update vehicle services without vehicle selection
                                   alert(
-                                    "Cannot update price for vehicle services without vehicle selection"
+                                    "Please select Brand, Model, and Fuel to update vehicle-specific service prices."
                                   );
                                   return;
                                 }
                               }
                               // Reload to ensure accurate state
                               await loadServices();
-                              setEditedPrices((prev) => ({
-                                ...prev,
-                                [service._id]: "",
-                              }));
-                              alert("Price updated successfully");
-                            } catch (err) {
-                              console.error("Failed to update price", err);
+                              setEditedPrices((prev) => {
+                                const updated = { ...prev };
+                                delete updated[service._id];
+                                return updated;
+                              });
                               alert(
-                                "Failed to update price. Check console / network tab."
+                                `Price updated successfully to ₹${priceInRupees}`
                               );
+                            } catch (err: any) {
+                              console.error("Failed to update price", err);
+                              const errorMessage =
+                                err.response?.data?.message ||
+                                err.message ||
+                                "Failed to update price. Please try again.";
+
+                              if (
+                                err.message?.includes("Token expired") ||
+                                err.response?.status === 401
+                              ) {
+                                alert(
+                                  "Your session has expired. Please refresh the page and try again."
+                                );
+                                // Optionally reload the page to trigger re-authentication
+                                setTimeout(() => {
+                                  window.location.reload();
+                                }, 2000);
+                              } else {
+                                alert(`Error: ${errorMessage}`);
+                              }
                             }
                           }}
                           className="px-2 py-1 text-xs font-medium text-white bg-green-600 rounded hover:bg-green-700"

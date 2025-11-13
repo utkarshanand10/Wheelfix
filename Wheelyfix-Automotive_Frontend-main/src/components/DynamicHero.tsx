@@ -587,9 +587,10 @@ const DynamicHero = () => {
           console.log(`✅ Loaded ${response.data.data.services.length} services for ${brand} ${model} ${fuel}`);
           
           // Transform services to match the expected format
+          // Use service.price (which includes overrides) instead of originalPrice
           const transformedServices = response.data.data.services.map((service: any) => ({
             serviceName: service.name,
-            price: service.originalPrice,
+            price: service.price || service.originalPrice, // Use override price if available, else original
             description: service.desc,
             estimatedTime: service.estimatedTime,
             category: service.category

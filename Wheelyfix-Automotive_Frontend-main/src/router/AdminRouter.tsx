@@ -8,10 +8,11 @@ import { AdminLogin } from "../pages/admin/AdminLogin";
 import { AdminDashboard } from "../pages/admin/AdminDashboard";
 import { AdminUsers } from "../pages/admin/AdminUsers";
 import { AdminServices } from "../pages/admin/AdminServices";
-import { AdminProducts } from "../pages/admin/AdminProducts";
 import { AdminBrands } from "../pages/admin/AdminBrands";
 import { AdminOrders } from "../pages/admin/AdminOrders";
 import { AdminSettings } from "../pages/admin/AdminSettings";
+import { AdminActivityLogs } from "../pages/admin/AdminActivityLogs";
+import { AdminNotifications } from "../pages/admin/AdminNotifications";
 import { AdminTest } from "../pages/admin/AdminTest";
 import { AdminDebug } from "../pages/admin/AdminDebug";
 
@@ -58,11 +59,7 @@ export const AdminRouter: React.FC = () => {
             />
             <Route
               path="products"
-              element={
-                <AdminProtectedRoute requiredPermission="manage_products">
-                  <AdminProducts />
-                </AdminProtectedRoute>
-              }
+              element={<Navigate to="/admin/brands" replace />}
             />
             <Route
               path="brands"
@@ -80,36 +77,7 @@ export const AdminRouter: React.FC = () => {
                 </AdminProtectedRoute>
               }
             />
-            <Route
-              path="content"
-              element={
-                <AdminProtectedRoute requiredPermission="manage_content">
-                  <div className="p-6">
-                    <h1 className="text-2xl font-bold text-gray-900">
-                      Content Management
-                    </h1>
-                    <p className="text-gray-600">
-                      Content management coming soon...
-                    </p>
-                  </div>
-                </AdminProtectedRoute>
-              }
-            />
-            <Route
-              path="media"
-              element={
-                <AdminProtectedRoute requiredPermission="manage_media">
-                  <div className="p-6">
-                    <h1 className="text-2xl font-bold text-gray-900">
-                      Media Manager
-                    </h1>
-                    <p className="text-gray-600">
-                      Media management coming soon...
-                    </p>
-                  </div>
-                </AdminProtectedRoute>
-              }
-            />
+            {/* Content and Media removed per admin request */}
             <Route
               path="settings"
               element={
@@ -122,26 +90,16 @@ export const AdminRouter: React.FC = () => {
               path="activity-logs"
               element={
                 <AdminProtectedRoute requiredPermission="view_reports">
-                  <div className="p-6">
-                    <h1 className="text-2xl font-bold text-gray-900">
-                      Activity Logs
-                    </h1>
-                    <p className="text-gray-600">
-                      Activity logs coming soon...
-                    </p>
-                  </div>
+                  <AdminActivityLogs />
                 </AdminProtectedRoute>
               }
             />
             <Route
               path="notifications"
               element={
-                <div className="p-6">
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    Notifications
-                  </h1>
-                  <p className="text-gray-600">Notifications coming soon...</p>
-                </div>
+                <AdminProtectedRoute requiredPermission="manage_settings">
+                  <AdminNotifications />
+                </AdminProtectedRoute>
               }
             />
           </Route>

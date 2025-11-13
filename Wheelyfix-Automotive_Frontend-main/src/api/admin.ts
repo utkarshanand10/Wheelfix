@@ -130,19 +130,86 @@ export const servicesApi = {
 
   getServicesByType: (type: string) => adminApi.get(`/services/type/${type}`),
   // Vehicle specific merged services (with overrides). POST expects { brand, model, fuel }
-  getVehicleServicesMerged: (payload: {
+  // NOTE: Endpoint is outside /api/admin namespace (no auth required to view), so use direct axios
+  getVehicleServicesMerged: async (payload: {
     brand: string;
     model: string;
     fuel: string;
-  }) => adminApi.post("/vehicle-services/filter", payload),
+  }) => {
+    const response = await axios.post(
+      `${API_BASE_URL}/vehicle-services`,
+      payload,
+      { headers: { "Content-Type": "application/json" } }
+    );
+    return response;
+  },
   // Update / upsert a vehicle-specific price override
-  updateVehicleServicePrice: (payload: {
+  // Note: This endpoint is at /api/vehicle-services (not /api/admin), so we call it directly
+  updateVehicleServicePrice: async (payload: {
     brand: string;
     model: string;
     fuel: string;
     serviceName: string;
     price: number;
-  }) => adminApi.put("/vehicle-services/override/price", payload),
+  }) => {
+    // Get admin token
+    const token = localStorage.getItem("admin_access_token");
+    if (!token) {
+      throw new Error("Admin access token not found");
+    }
+
+    // Make request to the correct endpoint with retry logic for token refresh
+    try {
+      const response = await axios.put(
+        `${API_BASE_URL}/vehicle-services/override/price`,
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response;
+    } catch (error: any) {
+      // If 401, try to refresh token and retry
+      if (error.response?.status === 401) {
+        try {
+          const refreshToken = localStorage.getItem("admin_refresh_token");
+          if (refreshToken) {
+            const refreshResponse = await adminApi.post("/auth/refresh-token", {
+              refreshToken,
+            });
+
+            const { accessToken, refreshToken: newRefreshToken } =
+              refreshResponse.data.data;
+            localStorage.setItem("admin_access_token", accessToken);
+            localStorage.setItem("admin_refresh_token", newRefreshToken);
+
+            // Retry with new token
+            const retryResponse = await axios.put(
+              `${API_BASE_URL}/vehicle-services/override/price`,
+              payload,
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${accessToken}`,
+                },
+              }
+            );
+            return retryResponse;
+          }
+        } catch (refreshError) {
+          // Refresh failed, redirect to login
+          localStorage.removeItem("admin_access_token");
+          localStorage.removeItem("admin_refresh_token");
+          window.location.href = "/admin/login";
+          throw refreshError;
+        }
+      }
+      throw error;
+    }
+  },
 };
 
 // Products API

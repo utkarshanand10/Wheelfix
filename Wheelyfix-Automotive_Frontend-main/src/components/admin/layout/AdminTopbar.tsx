@@ -14,6 +14,8 @@ import {
   X,
 } from "lucide-react";
 import { WheelyfixLogo } from "../WheelyfixLogo";
+import { analyticsApi } from "@/api/admin";
+import { useNavigate } from "react-router-dom";
 
 interface AdminTopbarProps {
   onMenuToggle: () => void;
@@ -32,6 +34,37 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
 
   useEffect(() => setMounted(true), []);
   const [searchQuery, setSearchQuery] = useState("");
+  const [notificationCount, setNotificationCount] = useState<number>(0);
+  const navigate = useNavigate();
+
+  // Fetch recent activity logs and derive a notification count.
+  const fetchNotificationsCount = async () => {
+    try {
+      // Get logs from last 24 hours (server will handle parsing); fetch up to 50 recent logs
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const res = await analyticsApi.getActivityLogs({
+        page: 1,
+        limit: 50,
+        startDate: since,
+      });
+      const data = res.data?.data;
+      const logs = data?.logs || [];
+
+      // Count logs that represent notifications: new orders (resource === 'ORDER') or user sign-ins (action === 'LOGIN')
+      const count = logs.reduce((acc: number, l: any) => {
+        const resource = (l.resource || "").toString().toUpperCase();
+        const action = (l.action || "").toString().toUpperCase();
+        if (resource === "ORDER") return acc + 1;
+        if (action === "LOGIN") return acc + 1;
+        return acc;
+      }, 0);
+
+      setNotificationCount(count);
+    } catch (err) {
+      // silently ignore notification fetch errors
+      // console.debug('Notification fetch failed', err);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -44,6 +77,25 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
   const toggleDarkMode = () => {
     setTheme(isDarkMode ? "light" : "dark");
   };
+
+  useEffect(() => {
+    // initial fetch and poll every 15s
+    fetchNotificationsCount();
+    const id = setInterval(fetchNotificationsCount, 15 * 1000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // React to notifications page updates (mark read, etc.)
+  useEffect(() => {
+    const handler = (e: any) => {
+      const unread = Number(e?.detail?.unread ?? 0);
+      if (!Number.isNaN(unread)) setNotificationCount(unread);
+    };
+    window.addEventListener("admin:notifications:update", handler as any);
+    return () =>
+      window.removeEventListener("admin:notifications:update", handler as any);
+  }, []);
 
   return (
     <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
@@ -111,12 +163,15 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
           <button
             type="button"
             className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500 relative"
+            onClick={() => navigate("/admin/notifications")}
           >
             <span className="sr-only">View notifications</span>
             <Bell className="h-6 w-6" aria-hidden="true" />
-            <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-              3
-            </span>
+            {notificationCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                {notificationCount}
+              </span>
+            )}
           </button>
 
           {/* Separator */}

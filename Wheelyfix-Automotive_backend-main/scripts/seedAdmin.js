@@ -1,24 +1,24 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const User = require('../models/userModel');
-const Service = require('../models/serviceModel');
-const Brand = require('../models/brandModel');
-const Settings = require('../models/settingsModel');
+require("dotenv").config();
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const User = require("../models/userModel");
+const Service = require("../models/serviceModel");
+const Brand = require("../models/brandModel");
+const Settings = require("../models/settingsModel");
 
 const connectDB = async () => {
   try {
-    console.log('MONGODB_URL:', process.env.MONGODB_URL);
+    console.log("MONGODB_URL:", process.env.MONGODB_URL);
     if (!process.env.MONGODB_URL) {
-      throw new Error('MONGODB_URL environment variable is not set');
+      throw new Error("MONGODB_URL environment variable is not set");
     }
     await mongoose.connect(process.env.MONGODB_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log('MongoDB connected successfully');
+    console.log("MongoDB connected successfully");
   } catch (error) {
-    console.error('MongoDB connection error:', error);
+    console.error("MongoDB connection error:", error);
     process.exit(1);
   }
 };
@@ -27,56 +27,67 @@ const seedAdmin = async () => {
   try {
     await connectDB();
 
+    // Read credentials from env when available to avoid hard-coded secrets
+    const SUPERADMIN_EMAIL =
+      process.env.SUPERADMIN_EMAIL || "superadmin@wheelyfix.com";
+    const SUPERADMIN_PASSWORD =
+      process.env.SUPERADMIN_PASSWORD || "ChangeMe123!";
+
     // Create superadmin user
     const superAdminData = {
-      name: 'Super Admin',
-      email: 'superadmin@wheelyfix.com',
-      password: 'ChangeMe123!',
-      phoneNumber: '9876543210',
-      role: 'superadmin',
+      name: "Super Admin",
+      email: SUPERADMIN_EMAIL,
+      password: SUPERADMIN_PASSWORD,
+      phoneNumber: "9876543210",
+      role: "superadmin",
       permissions: [
-        'manage_users',
-        'manage_services',
-        'manage_products',
-        'manage_brands',
-        'manage_orders',
-        'view_reports',
-        'manage_settings',
-        'manage_content',
-        'manage_media'
+        "manage_users",
+        "manage_services",
+        "manage_products",
+        "manage_brands",
+        "manage_orders",
+        "view_reports",
+        "manage_settings",
+        "manage_content",
+        "manage_media",
       ],
-      status: 'active',
+      status: "active",
       isAdmin: true,
     };
 
     // Check if superadmin already exists
-    const existingSuperAdmin = await User.findOne({ email: superAdminData.email });
+    const existingSuperAdmin = await User.findOne({
+      email: superAdminData.email,
+    });
     if (existingSuperAdmin) {
-      console.log('Super admin already exists');
+      console.log("Super admin already exists");
       return;
     }
 
     // Create superadmin
     const superAdmin = new User(superAdminData);
     await superAdmin.save();
-    console.log('Super admin created successfully');
+    console.log("Super admin created successfully");
 
-    // Create sample admin user
+    // Create sample admin user (credentials can be overridden via env)
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@wheelyfix.com";
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin123!";
+
     const adminData = {
-      name: 'Admin User',
-      email: 'admin@wheelyfix.com',
-      password: 'Admin123!',
-      phoneNumber: '9876543211',
-      role: 'admin',
+      name: "Admin User",
+      email: ADMIN_EMAIL,
+      password: ADMIN_PASSWORD,
+      phoneNumber: "9876543211",
+      role: "admin",
       permissions: [
-        'manage_users',
-        'manage_services',
-        'manage_products',
-        'manage_brands',
-        'manage_orders',
-        'view_reports'
+        "manage_users",
+        "manage_services",
+        "manage_products",
+        "manage_brands",
+        "manage_orders",
+        "view_reports",
       ],
-      status: 'active',
+      status: "active",
       isAdmin: true,
     };
 
@@ -84,22 +95,21 @@ const seedAdmin = async () => {
     if (!existingAdmin) {
       const admin = new User(adminData);
       await admin.save();
-      console.log('Admin user created successfully');
+      console.log("Admin user created successfully");
     }
 
-    // Create sample manager user
+    // Create sample manager user (credentials can be overridden via env)
+    const MANAGER_EMAIL = process.env.MANAGER_EMAIL || "manager@wheelyfix.com";
+    const MANAGER_PASSWORD = process.env.MANAGER_PASSWORD || "Manager123!";
+
     const managerData = {
-      name: 'Manager User',
-      email: 'manager@wheelyfix.com',
-      password: 'Manager123!',
-      phoneNumber: '9876543212',
-      role: 'manager',
-      permissions: [
-        'manage_services',
-        'manage_products',
-        'view_reports'
-      ],
-      status: 'active',
+      name: "Manager User",
+      email: MANAGER_EMAIL,
+      password: MANAGER_PASSWORD,
+      phoneNumber: "9876543212",
+      role: "manager",
+      permissions: ["manage_services", "manage_products", "view_reports"],
+      status: "active",
       isAdmin: true,
     };
 
@@ -107,156 +117,163 @@ const seedAdmin = async () => {
     if (!existingManager) {
       const manager = new User(managerData);
       await manager.save();
-      console.log('Manager user created successfully');
+      console.log("Manager user created successfully");
     }
 
     // Create sample services
     const sampleServices = [
       {
-        title: 'Engine Oil Change',
-        description: 'Complete engine oil change service with high-quality oil and filter replacement.',
-        shortDescription: 'Professional engine oil change service',
+        title: "Engine Oil Change",
+        description:
+          "Complete engine oil change service with high-quality oil and filter replacement.",
+        shortDescription: "Professional engine oil change service",
         price: 1500,
         durationMinutes: 60,
-        category: 'Engine Service',
-        status: 'active',
+        category: "Engine Service",
+        status: "active",
         featured: true,
         popular: true,
         createdBy: superAdmin._id,
-        icon: '🛢️',
+        icon: "🛢️",
         includes: [
-          'High-quality engine oil',
-          'Oil filter replacement',
-          'Engine inspection',
-          'Free car wash'
+          "High-quality engine oil",
+          "Oil filter replacement",
+          "Engine inspection",
+          "Free car wash",
         ],
         requirements: [
-          'Vehicle should be in running condition',
-          'Previous service records if available'
+          "Vehicle should be in running condition",
+          "Previous service records if available",
         ],
         warranty: {
           duration: 3,
-          unit: 'months',
-          description: '3 months or 5000 km warranty on service'
-        }
+          unit: "months",
+          description: "3 months or 5000 km warranty on service",
+        },
       },
       {
-        title: 'Brake Service',
-        description: 'Complete brake system inspection and service including brake pads, discs, and fluid check.',
-        shortDescription: 'Complete brake system service',
+        title: "Brake Service",
+        description:
+          "Complete brake system inspection and service including brake pads, discs, and fluid check.",
+        shortDescription: "Complete brake system service",
         price: 2500,
         durationMinutes: 90,
-        category: 'Brake Service',
-        status: 'active',
+        category: "Brake Service",
+        status: "active",
         featured: true,
         popular: true,
         createdBy: superAdmin._id,
-        icon: '🛑',
+        icon: "🛑",
         includes: [
-          'Brake pad inspection',
-          'Brake disc check',
-          'Brake fluid replacement',
-          'Brake system cleaning'
+          "Brake pad inspection",
+          "Brake disc check",
+          "Brake fluid replacement",
+          "Brake system cleaning",
         ],
         requirements: [
-          'Vehicle should be in running condition',
-          'Brake system should not be completely worn out'
+          "Vehicle should be in running condition",
+          "Brake system should not be completely worn out",
         ],
         warranty: {
           duration: 6,
-          unit: 'months',
-          description: '6 months or 10000 km warranty on brake service'
-        }
+          unit: "months",
+          description: "6 months or 10000 km warranty on brake service",
+        },
       },
       {
-        title: 'AC Service',
-        description: 'Complete air conditioning system service including gas refill, filter cleaning, and performance check.',
-        shortDescription: 'Complete AC system service',
+        title: "AC Service",
+        description:
+          "Complete air conditioning system service including gas refill, filter cleaning, and performance check.",
+        shortDescription: "Complete AC system service",
         price: 2000,
         durationMinutes: 75,
-        category: 'Electrical Service',
-        status: 'active',
+        category: "Electrical Service",
+        status: "active",
         featured: false,
         popular: true,
         createdBy: superAdmin._id,
-        icon: '❄️',
+        icon: "❄️",
         includes: [
-          'AC gas refill',
-          'AC filter cleaning',
-          'AC performance check',
-          'AC system sanitization'
+          "AC gas refill",
+          "AC filter cleaning",
+          "AC performance check",
+          "AC system sanitization",
         ],
         requirements: [
-          'Vehicle should be in running condition',
-          'AC system should be functional'
+          "Vehicle should be in running condition",
+          "AC system should be functional",
         ],
         warranty: {
           duration: 3,
-          unit: 'months',
-          description: '3 months warranty on AC service'
-        }
+          unit: "months",
+          description: "3 months warranty on AC service",
+        },
       },
       {
-        title: 'Battery Service',
-        description: 'Battery health check, terminal cleaning, and replacement if needed.',
-        shortDescription: 'Battery health check and service',
+        title: "Battery Service",
+        description:
+          "Battery health check, terminal cleaning, and replacement if needed.",
+        shortDescription: "Battery health check and service",
         price: 800,
         durationMinutes: 30,
-        category: 'Electrical Service',
-        status: 'active',
+        category: "Electrical Service",
+        status: "active",
         featured: false,
         popular: false,
         createdBy: superAdmin._id,
-        icon: '🔋',
+        icon: "🔋",
         includes: [
-          'Battery health check',
-          'Terminal cleaning',
-          'Battery replacement if needed',
-          'Charging system check'
+          "Battery health check",
+          "Terminal cleaning",
+          "Battery replacement if needed",
+          "Charging system check",
         ],
         requirements: [
-          'Vehicle should be accessible',
-          'Battery should be accessible'
+          "Vehicle should be accessible",
+          "Battery should be accessible",
         ],
         warranty: {
           duration: 12,
-          unit: 'months',
-          description: '12 months warranty on new battery'
-        }
+          unit: "months",
+          description: "12 months warranty on new battery",
+        },
       },
       {
-        title: 'General Service',
-        description: 'Comprehensive vehicle service including oil change, filter replacement, and general inspection.',
-        shortDescription: 'Comprehensive vehicle service',
+        title: "General Service",
+        description:
+          "Comprehensive vehicle service including oil change, filter replacement, and general inspection.",
+        shortDescription: "Comprehensive vehicle service",
         price: 3000,
         durationMinutes: 120,
-        category: 'General Service',
-        status: 'active',
+        category: "General Service",
+        status: "active",
         featured: true,
         popular: true,
         createdBy: superAdmin._id,
-        icon: '🔧',
+        icon: "🔧",
         includes: [
-          'Engine oil change',
-          'Air filter replacement',
-          'Fuel filter check',
-          'General inspection',
-          'Free car wash'
+          "Engine oil change",
+          "Air filter replacement",
+          "Fuel filter check",
+          "General inspection",
+          "Free car wash",
         ],
         requirements: [
-          'Vehicle should be in running condition',
-          'Previous service records if available'
+          "Vehicle should be in running condition",
+          "Previous service records if available",
         ],
         warranty: {
           duration: 6,
-          unit: 'months',
-          description: '6 months or 10000 km warranty on general service'
-        }
-      }
+          unit: "months",
+          description: "6 months or 10000 km warranty on general service",
+        },
+      },
     ];
 
     for (const serviceData of sampleServices) {
-      const existingService = await Service.findOne({ title: serviceData.title });
+      const existingService = await Service.findOne({
+        title: serviceData.title,
+      });
       if (!existingService) {
         const service = new Service(serviceData);
         await service.save();
@@ -267,60 +284,60 @@ const seedAdmin = async () => {
     // Create sample brands
     const sampleBrands = [
       {
-        type: 'bike',
-        name: 'Honda',
-        slug: 'honda',
-        logo: '/logos/honda.svg',
+        type: "bike",
+        name: "Honda",
+        slug: "honda",
+        logo: "/logos/honda.svg",
         models: [
-          { name: 'Activa', fuels: ['petrol'] },
-          { name: 'Shine', fuels: ['petrol'] },
-          { name: 'Unicorn', fuels: ['petrol'] }
-        ]
+          { name: "Activa", fuels: ["petrol"] },
+          { name: "Shine", fuels: ["petrol"] },
+          { name: "Unicorn", fuels: ["petrol"] },
+        ],
       },
       {
-        type: 'bike',
-        name: 'Yamaha',
-        slug: 'yamaha',
-        logo: '/logos/yamaha.svg',
+        type: "bike",
+        name: "Yamaha",
+        slug: "yamaha",
+        logo: "/logos/yamaha.svg",
         models: [
-          { name: 'FZ', fuels: ['petrol'] },
-          { name: 'R15', fuels: ['petrol'] },
-          { name: 'MT-15', fuels: ['petrol'] }
-        ]
+          { name: "FZ", fuels: ["petrol"] },
+          { name: "R15", fuels: ["petrol"] },
+          { name: "MT-15", fuels: ["petrol"] },
+        ],
       },
       {
-        type: 'bike',
-        name: 'Bajaj',
-        slug: 'bajaj',
-        logo: '/logos/bajaj.svg',
+        type: "bike",
+        name: "Bajaj",
+        slug: "bajaj",
+        logo: "/logos/bajaj.svg",
         models: [
-          { name: 'Pulsar', fuels: ['petrol'] },
-          { name: 'Discover', fuels: ['petrol'] },
-          { name: 'Avenger', fuels: ['petrol'] }
-        ]
+          { name: "Pulsar", fuels: ["petrol"] },
+          { name: "Discover", fuels: ["petrol"] },
+          { name: "Avenger", fuels: ["petrol"] },
+        ],
       },
       {
-        type: 'bike',
-        name: 'TVS',
-        slug: 'tvs',
-        logo: '/logos/tvs.svg',
+        type: "bike",
+        name: "TVS",
+        slug: "tvs",
+        logo: "/logos/tvs.svg",
         models: [
-          { name: 'Apache', fuels: ['petrol'] },
-          { name: 'Jupiter', fuels: ['petrol'] },
-          { name: 'Ntorq', fuels: ['petrol'] }
-        ]
+          { name: "Apache", fuels: ["petrol"] },
+          { name: "Jupiter", fuels: ["petrol"] },
+          { name: "Ntorq", fuels: ["petrol"] },
+        ],
       },
       {
-        type: 'bike',
-        name: 'Royal Enfield',
-        slug: 'royal-enfield',
-        logo: '/logos/royal-enfield.svg',
+        type: "bike",
+        name: "Royal Enfield",
+        slug: "royal-enfield",
+        logo: "/logos/royal-enfield.svg",
         models: [
-          { name: 'Classic 350', fuels: ['petrol'] },
-          { name: 'Bullet 350', fuels: ['petrol'] },
-          { name: 'Himalayan', fuels: ['petrol'] }
-        ]
-      }
+          { name: "Classic 350", fuels: ["petrol"] },
+          { name: "Bullet 350", fuels: ["petrol"] },
+          { name: "Himalayan", fuels: ["petrol"] },
+        ],
+      },
     ];
 
     for (const brandData of sampleBrands) {
@@ -337,34 +354,34 @@ const seedAdmin = async () => {
     if (!existingSettings) {
       const defaultSettings = new Settings({
         company: {
-          name: 'WheelyFix',
-          description: 'Your trusted automotive service partner',
-          tagline: 'Quality Service, Every Time',
-          website: 'https://wheelyfix.in',
-          email: 'info@wheelyfix.in',
-          phone: '+91-9876543210',
+          name: "WheelyFix",
+          description: "Your trusted automotive service partner",
+          tagline: "Quality Service, Every Time",
+          website: "https://wheelyfix.in",
+          email: "info@wheelyfix.in",
+          phone: "+91-9876543210",
           address: {
-            street: '123 Service Street',
-            city: 'Mumbai',
-            state: 'Maharashtra',
-            pincode: '400001',
-            country: 'India'
-          }
+            street: "123 Service Street",
+            city: "Mumbai",
+            state: "Maharashtra",
+            pincode: "400001",
+            country: "India",
+          },
         },
         business: {
           hours: {
-            monday: { open: '09:00', close: '18:00', closed: false },
-            tuesday: { open: '09:00', close: '18:00', closed: false },
-            wednesday: { open: '09:00', close: '18:00', closed: false },
-            thursday: { open: '09:00', close: '18:00', closed: false },
-            friday: { open: '09:00', close: '18:00', closed: false },
-            saturday: { open: '09:00', close: '16:00', closed: false },
-            sunday: { open: '10:00', close: '14:00', closed: false }
+            monday: { open: "09:00", close: "18:00", closed: false },
+            tuesday: { open: "09:00", close: "18:00", closed: false },
+            wednesday: { open: "09:00", close: "18:00", closed: false },
+            thursday: { open: "09:00", close: "18:00", closed: false },
+            friday: { open: "09:00", close: "18:00", closed: false },
+            saturday: { open: "09:00", close: "16:00", closed: false },
+            sunday: { open: "10:00", close: "14:00", closed: false },
           },
-          timezone: 'Asia/Kolkata',
-          currency: 'INR',
-          currencySymbol: '₹',
-          maintenanceMode: false
+          timezone: "Asia/Kolkata",
+          currency: "INR",
+          currencySymbol: "₹",
+          maintenanceMode: false,
         },
         features: {
           userRegistration: true,
@@ -373,25 +390,39 @@ const seedAdmin = async () => {
           reviews: true,
           notifications: true,
           darkMode: true,
-          multiLanguage: false
+          multiLanguage: false,
         },
-        updatedBy: superAdmin._id
+        updatedBy: superAdmin._id,
       });
 
       await defaultSettings.save();
-      console.log('Default settings created successfully');
+      console.log("Default settings created successfully");
     }
 
-    console.log('\n=== SEED COMPLETED SUCCESSFULLY ===');
-    console.log('Admin credentials:');
-    console.log('Super Admin: superadmin@wheelyfix.com / ChangeMe123!');
-    console.log('Admin: admin@wheelyfix.com / Admin123!');
-    console.log('Manager: manager@wheelyfix.com / Manager123!');
-    console.log('\nAdmin Panel URL: http://localhost:3000/admin');
-    console.log('=====================================');
-
+    console.log("\n=== SEED COMPLETED SUCCESSFULLY ===");
+    console.log("Admin credentials:");
+    console.log(
+      "Super Admin:",
+      SUPERADMIN_EMAIL,
+      "/",
+      SUPERADMIN_PASSWORD ? "[SET]" : "[not set]"
+    );
+    console.log(
+      "Admin:",
+      ADMIN_EMAIL,
+      "/",
+      ADMIN_PASSWORD ? "[SET]" : "[not set]"
+    );
+    console.log(
+      "Manager:",
+      MANAGER_EMAIL,
+      "/",
+      MANAGER_PASSWORD ? "[SET]" : "[not set]"
+    );
+    console.log("\nAdmin Panel URL: http://localhost:3000/admin");
+    console.log("=====================================");
   } catch (error) {
-    console.error('Seed error:', error);
+    console.error("Seed error:", error);
   } finally {
     await mongoose.connection.close();
     process.exit(0);

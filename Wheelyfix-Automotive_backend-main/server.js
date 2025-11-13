@@ -68,6 +68,50 @@ if (!process.env.JWT_SECRET) {
 connect(); // Connect to MongoDB
 const app = express();
 
+// Optional: auto-create admin user from environment variables
+// This runs only when ADMIN_EMAIL and ADMIN_PASSWORD are set. It is intended
+// for development convenience so developers can provide credentials via .env
+// without running seed scripts. It will NOT override an existing user.
+if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
+  (async () => {
+    try {
+      const User = require("./models/userModel");
+      const email = process.env.ADMIN_EMAIL;
+      const pwd = process.env.ADMIN_PASSWORD;
+
+      const existing = await User.findOne({ email: email.toLowerCase() });
+      if (existing) {
+        console.log(`Admin user already exists: ${existing.email}`);
+      } else {
+        const adminUser = new User({
+          name: "Auto Admin",
+          email: email.toLowerCase(),
+          password: pwd,
+          phoneNumber: process.env.ADMIN_PHONE || "0000000000",
+          role: "admin",
+          permissions: [
+            "manage_users",
+            "manage_services",
+            "manage_products",
+            "manage_brands",
+            "manage_orders",
+            "view_reports",
+            "manage_settings",
+            "manage_content",
+            "manage_media",
+          ],
+          status: "active",
+          isAdmin: true,
+        });
+        await adminUser.save();
+        console.log(`Auto-created admin: ${adminUser.email}`);
+      }
+    } catch (err) {
+      console.error("Failed to auto-create admin:", err);
+    }
+  })();
+}
+
 // CORS configuration
 const corsOptions = {
   origin: process.env.CORS_ORIGIN || "http://localhost:8080",

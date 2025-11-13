@@ -1,18 +1,27 @@
-import React, { useState, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { ArrowLeft, CheckCircle, Clock, Wrench, Search, Filter } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState, useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  ArrowLeft,
+  CheckCircle,
+  Clock,
+  Wrench,
+  Search,
+  Filter,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 // Types
 interface Service {
   serviceName: string;
   price: number;
+  originalPrice?: number;
+  discountedPrice?: number;
   description: string;
   estimatedTime: number;
   category: string;
@@ -57,10 +66,9 @@ const VehicleServices: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  
   // Filter state
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   // Get data from navigation state
   const state = location.state as LocationState;
@@ -69,13 +77,13 @@ const VehicleServices: React.FC = () => {
   if (!state) {
     React.useEffect(() => {
       toast({
-        title: 'No Data Available',
-        description: 'Please select your vehicle details first.',
-        variant: 'destructive',
+        title: "No Data Available",
+        description: "Please select your vehicle details first.",
+        variant: "destructive",
       });
-      navigate('/');
+      navigate("/");
     }, [navigate, toast]);
-    
+
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -90,61 +98,69 @@ const VehicleServices: React.FC = () => {
 
   // Ensure services are properly isolated by vehicle type
   React.useEffect(() => {
-    console.log(`🔄 VehicleServices: Vehicle type is ${formData?.vehicleType}, ensuring service isolation`);
+    console.log(
+      `🔄 VehicleServices: Vehicle type is ${formData?.vehicleType}, ensuring service isolation`
+    );
     if (formData?.vehicleType) {
-      console.log(`✅ VehicleServices: Displaying ${formData.vehicleType.toLowerCase()} services only`);
+      console.log(
+        `✅ VehicleServices: Displaying ${formData.vehicleType.toLowerCase()} services only`
+      );
     }
   }, [formData?.vehicleType]);
 
   // Default fallback services based on vehicle type - COMPLETELY SEPARATED
   const getDefaultServices = (vehicleType: string): Service[] => {
     console.log(`🔄 Getting default services for vehicle type: ${vehicleType}`);
-    
-    if (vehicleType && vehicleType.toLowerCase() === 'bike') {
+
+    if (vehicleType && vehicleType.toLowerCase() === "bike") {
       console.log(`🏍️ Returning BIKE services only`);
       return [
         {
           serviceName: "Basic Service",
           price: 499,
-          description: "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km)",
+          description:
+            "Engine oil change (semi-synthetic), air filter cleaning, chain cleaning & lubrication, brake inspection & adjustment, battery & electrical check-up, general wash & polish, free pickup & drop (within 5 km)",
           estimatedTime: 1,
-          category: "Basic"
+          category: "Basic",
         },
         {
           serviceName: "Standard Service",
           price: 999,
-          description: "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report",
+          description:
+            "Everything in Basic Service plus engine oil (synthetic), oil filter replacement, spark plug check/cleaning, carburetor/FI tuning, brake shoe/pad cleaning, full bike health inspection report",
           estimatedTime: 1.5,
-          category: "Standard"
+          category: "Standard",
         },
         {
           serviceName: "Premium Service",
           price: 1499,
-          description: "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km)",
+          description:
+            "Everything in Standard Service plus premium synthetic oil (Motul/Castrol Power1), coolant top-up, complete chain set cleaning & lubrication, throttle body cleaning (for FI bikes), suspension check & lubrication, detailed bike wash & polishing, free pick-up & drop (up to 10 km)",
           estimatedTime: 2,
-          category: "Premium"
+          category: "Premium",
         },
         {
           serviceName: "Annual Maintenance Package (AMC)",
           price: 1999,
-          description: "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
+          description:
+            "3 Free Services (any time in a year), 1 Free General Check-up, discounts on parts (10–15%), priority booking, lifetime free washing (4 times/year)",
           estimatedTime: 0,
-          category: "AMC"
+          category: "AMC",
         },
         {
           serviceName: "Bike Wash & Polish",
           price: 149,
           description: "Complete bike washing, polishing, and detailing",
           estimatedTime: 0.5,
-          category: "Add-on"
+          category: "Add-on",
         },
         {
           serviceName: "Brake Pad Replacement",
           price: 249,
           description: "Brake pad replacement with genuine parts",
           estimatedTime: 0.5,
-          category: "Add-on"
-        }
+          category: "Add-on",
+        },
       ];
     } else {
       console.log(`🚗 Returning CAR services only`);
@@ -153,59 +169,105 @@ const VehicleServices: React.FC = () => {
         {
           serviceName: "Basic Service",
           price: 2500,
-          description: "Engine oil replacement, air filter cleaning, basic inspection, car washing",
+          description:
+            "Engine oil replacement, air filter cleaning, basic inspection, car washing",
           estimatedTime: 1,
-          category: "Basic"
+          category: "Basic",
         },
         {
           serviceName: "Standard Service",
           price: 3500,
-          description: "Basic service + brake check, coolant top-up, spark plug check, battery inspection",
+          description:
+            "Basic service + brake check, coolant top-up, spark plug check, battery inspection",
           estimatedTime: 2,
-          category: "Standard"
+          category: "Standard",
         },
         {
           serviceName: "Comprehensive Service",
           price: 5000,
-          description: "Standard service + AC filter replacement, wheel alignment, detailed inspection",
+          description:
+            "Standard service + AC filter replacement, wheel alignment, detailed inspection",
           estimatedTime: 3,
-          category: "Comprehensive"
+          category: "Comprehensive",
         },
         {
           serviceName: "AC Service",
           price: 1800,
           description: "AC gas refill, filter cleaning, cooling system check",
           estimatedTime: 1,
-          category: "AC"
+          category: "AC",
         },
         {
           serviceName: "Tyre Care",
           price: 1200,
-          description: "Tyre rotation, balancing, pressure check, tread inspection",
+          description:
+            "Tyre rotation, balancing, pressure check, tread inspection",
           estimatedTime: 1,
-          category: "Tyre"
+          category: "Tyre",
         },
         {
           serviceName: "Battery Service",
           price: 1500,
           description: "Battery health check, terminal cleaning, charging test",
           estimatedTime: 1,
-          category: "Battery"
-        }
+          category: "Battery",
+        },
       ];
     }
   };
 
-  const defaultServices = getDefaultServices(formData?.vehicleType || 'Car');
+  const defaultServices = getDefaultServices(formData?.vehicleType || "Car");
 
   // Use provided services or fallback to default services
-  const displayServices = services && services.length > 0 ? services : defaultServices;
-  
+  const displayServices =
+    services && services.length > 0 ? services : defaultServices;
+
+  // Normalize prices and related fields so UI always receives prices in RUPEES
+  const displayServicesNormalized: Service[] = (displayServices as any[]).map(
+    (s: any) => {
+      const raw = s.raw || s || {};
+
+      // Determine price in rupees. Priority:
+      // 1. explicit pricePaise -> /100
+      // 2. explicit priceInRupees -> use directly
+      // 3. numeric price: if very large (>10000) assume paise and divide by 100, otherwise treat as rupees
+      let priceRupees = 0;
+      if (raw.pricePaise !== undefined && raw.pricePaise !== null && raw.pricePaise !== "") {
+        priceRupees = Number(raw.pricePaise) / 100;
+      } else if (raw.priceInRupees !== undefined && raw.priceInRupees !== null && raw.priceInRupees !== "") {
+        priceRupees = Number(raw.priceInRupees);
+      } else if (raw.price !== undefined && raw.price !== null && raw.price !== "") {
+        const p = Number(raw.price);
+        priceRupees = !Number.isNaN(p) ? (p > 10000 ? p / 100 : p) : 0;
+      } else if (typeof s.price === "number") {
+        priceRupees = s.price > 10000 ? s.price / 100 : s.price;
+      }
+
+      const originalPrice =
+        raw.originalPrice !== undefined && raw.originalPrice !== null && raw.originalPrice !== ""
+          ? (Number(raw.originalPrice) > 10000 ? Number(raw.originalPrice) / 100 : Number(raw.originalPrice))
+          : priceRupees;
+
+      const discountedPriceRaw = raw.discountedPrice ?? s.discountedPrice;
+      const discountedPrice =
+        discountedPriceRaw !== undefined && discountedPriceRaw !== null && discountedPriceRaw !== ""
+          ? (Number(discountedPriceRaw) > 10000 ? Number(discountedPriceRaw) / 100 : Number(discountedPriceRaw))
+          : undefined;
+
+      return {
+        ...s,
+        price: priceRupees,
+        originalPrice,
+        discountedPrice,
+      } as Service;
+    }
+  );
+
   // Create default vehicle info if not provided
   const displayVehicleInfo: VehicleInfo = vehicleInfo || {
-    brand: formData?.brand || 'General',
-    model: formData?.model || 'General',
-    fuel: formData?.fuel || 'Petrol'
+    brand: formData?.brand || "General",
+    model: formData?.model || "General",
+    fuel: formData?.fuel || "Petrol",
   };
 
   // Categorize services into tiers
@@ -214,14 +276,24 @@ const VehicleServices: React.FC = () => {
     const standardServices: Service[] = [];
     const comprehensiveServices: Service[] = [];
 
-    services.forEach(service => {
+    services.forEach((service) => {
       const price = service.price;
-      const category = service.category?.toLowerCase() || '';
-      
+      const category = service.category?.toLowerCase() || "";
+
       // Categorize based on price and category
-      if (price <= 2000 || category.includes('basic') || category.includes('oil') || category.includes('wash')) {
+      if (
+        price <= 2000 ||
+        category.includes("basic") ||
+        category.includes("oil") ||
+        category.includes("wash")
+      ) {
         basicServices.push(service);
-      } else if (price <= 5000 || category.includes('standard') || category.includes('brake') || category.includes('battery')) {
+      } else if (
+        price <= 5000 ||
+        category.includes("standard") ||
+        category.includes("brake") ||
+        category.includes("battery")
+      ) {
         standardServices.push(service);
       } else {
         comprehensiveServices.push(service);
@@ -231,70 +303,84 @@ const VehicleServices: React.FC = () => {
     return { basicServices, standardServices, comprehensiveServices };
   };
 
-  const { basicServices, standardServices, comprehensiveServices } = categorizeServices(displayServices);
+  const { basicServices, standardServices, comprehensiveServices } =
+    categorizeServices(displayServicesNormalized);
 
   // Get unique categories for filter
   const availableCategories = useMemo(() => {
-    const categories = [...new Set(displayServices.map(service => service.category))];
+    const categories = [
+      ...new Set(displayServicesNormalized.map((service) => service.category)),
+    ];
     return categories.sort();
-  }, [displayServices]);
+  }, [displayServicesNormalized]);
 
   // Filter services based on search term and category
   const filteredBasicServices = useMemo(() => {
-    return basicServices.filter(service => {
-      const matchesSearch = service.serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           service.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
+    return basicServices.filter((service) => {
+      const matchesSearch =
+        service.serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        service.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "all" || service.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
   }, [basicServices, searchTerm, selectedCategory]);
 
   const filteredStandardServices = useMemo(() => {
-    return standardServices.filter(service => {
-      const matchesSearch = service.serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           service.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
+    return standardServices.filter((service) => {
+      const matchesSearch =
+        service.serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        service.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "all" || service.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
   }, [standardServices, searchTerm, selectedCategory]);
 
   const filteredComprehensiveServices = useMemo(() => {
-    return comprehensiveServices.filter(service => {
-      const matchesSearch = service.serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           service.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
+    return comprehensiveServices.filter((service) => {
+      const matchesSearch =
+        service.serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        service.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "all" || service.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
   }, [comprehensiveServices, searchTerm, selectedCategory]);
 
   const handleBookService = (service: Service) => {
     // Navigate to booking page with service and vehicle data
-    navigate('/booking', {
+    navigate("/booking", {
       state: {
         service: {
-          id: `${displayVehicleInfo.brand.toLowerCase()}-${displayVehicleInfo.model.toLowerCase()}-${service.serviceName.toLowerCase().replace(/\s+/g, '-')}`,
+          id: `${displayVehicleInfo.brand.toLowerCase()}-${displayVehicleInfo.model.toLowerCase()}-${service.serviceName.toLowerCase().replace(/\s+/g, "-")}`,
           name: service.serviceName,
           description: service.description,
           category: service.category,
-          duration: `${service.estimatedTime} hour${service.estimatedTime !== 1 ? 's' : ''}`,
-          icon: (formData?.vehicleType && formData.vehicleType.toLowerCase() === 'bike') ? '🏍️' : '🚗',
-          price: service.price
+          duration: `${service.estimatedTime} hour${service.estimatedTime !== 1 ? "s" : ""}`,
+          icon:
+            formData?.vehicleType &&
+            formData.vehicleType.toLowerCase() === "bike"
+              ? "🏍️"
+              : "🚗",
+          price: service.price,
+          originalPrice: service.originalPrice,
+          discountedPrice: service.discountedPrice,
         },
         vehicleInfo: displayVehicleInfo,
-        formData: formData
-      }
+        formData: formData,
+      },
     });
   };
 
-
   const handleBackToQuote = () => {
-    navigate('/');
+    navigate("/");
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         {/* Back Button */}
         <div className="mb-6">
@@ -314,14 +400,14 @@ const VehicleServices: React.FC = () => {
             <CheckCircle className="h-4 w-4" />
             Services Available
           </div>
-          
+
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Available Services for{' '}
+            Available Services for{" "}
             <span className="text-blue-600">
               {displayVehicleInfo.brand} {displayVehicleInfo.model}
             </span>
           </h1>
-          
+
           <div className="flex items-center justify-center gap-4 text-lg text-gray-600 mb-6">
             <span className="flex items-center gap-2">
               <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
@@ -329,13 +415,15 @@ const VehicleServices: React.FC = () => {
             </span>
             <span className="flex items-center gap-2">
               <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-              {displayServices.length} Service{displayServices.length !== 1 ? 's' : ''} Available
+              {displayServicesNormalized.length} Service
+              {displayServicesNormalized.length !== 1 ? "s" : ""} Available
             </span>
           </div>
 
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Choose from our professional service packages designed specifically for your vehicle.
-            All services include genuine parts, expert technicians, and quality guarantee.
+            Choose from our professional service packages designed specifically
+            for your vehicle. All services include genuine parts, expert
+            technicians, and quality guarantee.
           </p>
         </div>
 
@@ -359,7 +447,7 @@ const VehicleServices: React.FC = () => {
                   className="pl-10"
                 />
               </div>
-              
+
               {/* Category Filter */}
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-gray-400" />
@@ -369,27 +457,34 @@ const VehicleServices: React.FC = () => {
                   className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="all">All Categories</option>
-                  {availableCategories.map(category => (
-                    <option key={category} value={category}>{category}</option>
+                  {availableCategories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
                   ))}
                 </select>
               </div>
             </div>
-            
+
             {/* Filter Results Summary */}
-            {(searchTerm || selectedCategory !== 'all') && (
+            {(searchTerm || selectedCategory !== "all") && (
               <div className="mt-4 pt-4 border-t border-gray-100">
                 <p className="text-sm text-gray-600">
-                  Showing {filteredBasicServices.length + filteredStandardServices.length + filteredComprehensiveServices.length} of {displayServices.length} services
+                  Showing{" "}
+                  {filteredBasicServices.length +
+                    filteredStandardServices.length +
+                    filteredComprehensiveServices.length}{" "}
+                  of {displayServicesNormalized.length} services
                   {searchTerm && ` matching "${searchTerm}"`}
-                  {selectedCategory !== 'all' && ` in ${selectedCategory} category`}
+                  {selectedCategory !== "all" &&
+                    ` in ${selectedCategory} category`}
                 </p>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setSearchTerm('');
-                    setSelectedCategory('all');
+                    setSearchTerm("");
+                    setSelectedCategory("all");
                   }}
                   className="mt-2"
                 >
@@ -402,29 +497,73 @@ const VehicleServices: React.FC = () => {
 
         {/* Service Tiers */}
         <div className="space-y-16 max-w-7xl mx-auto">
-          
-          {/* No Results Message */}
-          {(filteredBasicServices.length === 0 && filteredStandardServices.length === 0 && filteredComprehensiveServices.length === 0) && (searchTerm || selectedCategory !== 'all') && (
-            <div className="text-center py-12">
-              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Search className="h-12 w-12 text-gray-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Services Found</h3>
-              <p className="text-gray-600 mb-6">
-                No services match your current search criteria. Try adjusting your filters.
-              </p>
-              <Button
-                onClick={() => {
-                  setSearchTerm('');
-                  setSelectedCategory('all');
-                }}
-                variant="outline"
-              >
-                Clear All Filters
-              </Button>
+          {/* Tabular view (compact) */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+              Service List (Table)
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm">
+                <thead>
+                  <tr className="text-left text-gray-500 border-b">
+                    <th className="py-2 pr-4">Service</th>
+                    <th className="py-2 pr-4">Category</th>
+                    <th className="py-2 pr-4">Price</th>
+                    <th className="py-2 pr-4">Discounted</th>
+                    <th className="py-2 pr-4">Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {displayServicesNormalized.map((s, idx) => (
+                    <tr key={`tbl-${idx}`} className="border-b last:border-0">
+                      <td className="py-2 pr-4 text-gray-900">{s.serviceName}</td>
+                      <td className="py-2 pr-4">{s.category}</td>
+                      <td className="py-2 pr-4">
+                        ₹{(s.originalPrice ?? s.price ?? 0).toLocaleString("en-IN")}
+                      </td>
+                      <td className="py-2 pr-4">
+                        {s.discountedPrice
+                          ? `₹${s.discountedPrice.toLocaleString("en-IN")}`
+                          : "-"}
+                      </td>
+                      <td className="py-2 pr-4">
+                        {s.estimatedTime}h
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          )}
-          
+          </div>
+
+          {/* No Results Message */}
+          {filteredBasicServices.length === 0 &&
+            filteredStandardServices.length === 0 &&
+            filteredComprehensiveServices.length === 0 &&
+            (searchTerm || selectedCategory !== "all") && (
+              <div className="text-center py-12">
+                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Search className="h-12 w-12 text-gray-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  No Services Found
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  No services match your current search criteria. Try adjusting
+                  your filters.
+                </p>
+                <Button
+                  onClick={() => {
+                    setSearchTerm("");
+                    setSelectedCategory("all");
+                  }}
+                  variant="outline"
+                >
+                  Clear All Filters
+                </Button>
+              </div>
+            )}
+
           {/* Basic Services */}
           {filteredBasicServices.length > 0 && (
             <div className="space-y-8">
@@ -433,20 +572,26 @@ const VehicleServices: React.FC = () => {
                   <CheckCircle className="h-5 w-5" />
                   Basic Services
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">Essential Maintenance</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  Essential Maintenance
+                </h2>
                 <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                  Keep your vehicle running smoothly with our essential maintenance services
+                  Keep your vehicle running smoothly with our essential
+                  maintenance services
                 </p>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredBasicServices.map((service, index) => (
-                  <Card 
-                    key={`basic-${index}`} 
+                  <Card
+                    key={`basic-${index}`}
                     className="group hover:shadow-2xl transition-all duration-300 border-2 hover:border-green-300 bg-white relative overflow-hidden"
                   >
                     <div className="absolute top-4 right-4 z-10">
-                      <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
+                      <Badge
+                        variant="secondary"
+                        className="bg-green-100 text-green-800 text-xs"
+                      >
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Basic
                       </Badge>
@@ -457,18 +602,41 @@ const VehicleServices: React.FC = () => {
                         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition-colors">
                           <Wrench className="h-8 w-8 text-green-600" />
                         </div>
-                        
+
                         <CardTitle className="text-xl font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
                           {service.serviceName}
                         </CardTitle>
-                        
-                        <div className="text-3xl font-bold text-green-600 mb-2">
-                          ₹{service.price.toLocaleString('en-IN')}
+
+                        <div className="mb-2 text-center">
+                          {service.discountedPrice &&
+                          service.discountedPrice < (service.price ?? 0) ? (
+                            <>
+                              <div className="text-sm text-gray-500 line-through">
+                                ₹
+                                {(
+                                  service.originalPrice ?? service.price
+                                ).toLocaleString("en-IN")}
+                              </div>
+                              <div className="text-3xl font-bold text-green-600">
+                                ₹
+                                {service.discountedPrice.toLocaleString(
+                                  "en-IN"
+                                )}
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-3xl font-bold text-green-600">
+                              ₹{(service.price ?? 0).toLocaleString("en-IN")}
+                            </div>
+                          )}
                         </div>
-                        
+
                         <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
                           <Clock className="h-4 w-4" />
-                          <span>{service.estimatedTime} hour{service.estimatedTime !== 1 ? 's' : ''}</span>
+                          <span>
+                            {service.estimatedTime} hour
+                            {service.estimatedTime !== 1 ? "s" : ""}
+                          </span>
                         </div>
                       </div>
                     </CardHeader>
@@ -495,7 +663,7 @@ const VehicleServices: React.FC = () => {
                         </div>
                       </div>
 
-                      <Button 
+                      <Button
                         onClick={() => handleBookService(service)}
                         className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 text-lg group-hover:shadow-lg transition-all duration-300"
                         size="lg"
@@ -517,20 +685,26 @@ const VehicleServices: React.FC = () => {
                   <CheckCircle className="h-5 w-5" />
                   Standard Services
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">Comprehensive Care</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  Comprehensive Care
+                </h2>
                 <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                  Advanced services for better performance and longer vehicle life
+                  Advanced services for better performance and longer vehicle
+                  life
                 </p>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredStandardServices.map((service, index) => (
-                  <Card 
-                    key={`standard-${index}`} 
+                  <Card
+                    key={`standard-${index}`}
                     className="group hover:shadow-2xl transition-all duration-300 border-2 hover:border-blue-300 bg-white relative overflow-hidden"
                   >
                     <div className="absolute top-4 right-4 z-10">
-                      <Badge variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
+                      <Badge
+                        variant="secondary"
+                        className="bg-blue-100 text-blue-800 text-xs"
+                      >
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Standard
                       </Badge>
@@ -541,18 +715,41 @@ const VehicleServices: React.FC = () => {
                         <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
                           <Wrench className="h-8 w-8 text-blue-600" />
                         </div>
-                        
+
                         <CardTitle className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
                           {service.serviceName}
                         </CardTitle>
-                        
-                        <div className="text-3xl font-bold text-blue-600 mb-2">
-                          ₹{service.price.toLocaleString('en-IN')}
+
+                        <div className="mb-2 text-center">
+                          {service.discountedPrice &&
+                          service.discountedPrice < (service.price ?? 0) ? (
+                            <>
+                              <div className="text-sm text-gray-500 line-through">
+                                ₹
+                                {(
+                                  service.originalPrice ?? service.price
+                                ).toLocaleString("en-IN")}
+                              </div>
+                              <div className="text-3xl font-bold text-blue-600">
+                                ₹
+                                {service.discountedPrice.toLocaleString(
+                                  "en-IN"
+                                )}
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-3xl font-bold text-blue-600">
+                              ₹{(service.price ?? 0).toLocaleString("en-IN")}
+                            </div>
+                          )}
                         </div>
-                        
+
                         <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
                           <Clock className="h-4 w-4" />
-                          <span>{service.estimatedTime} hour{service.estimatedTime !== 1 ? 's' : ''}</span>
+                          <span>
+                            {service.estimatedTime} hour
+                            {service.estimatedTime !== 1 ? "s" : ""}
+                          </span>
                         </div>
                       </div>
                     </CardHeader>
@@ -583,7 +780,7 @@ const VehicleServices: React.FC = () => {
                         </div>
                       </div>
 
-                      <Button 
+                      <Button
                         onClick={() => handleBookService(service)}
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 text-lg group-hover:shadow-lg transition-all duration-300"
                         size="lg"
@@ -605,20 +802,26 @@ const VehicleServices: React.FC = () => {
                   <CheckCircle className="h-5 w-5" />
                   Comprehensive Services
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">Premium Solutions</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  Premium Solutions
+                </h2>
                 <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                  Complete vehicle overhaul and premium maintenance for optimal performance
+                  Complete vehicle overhaul and premium maintenance for optimal
+                  performance
                 </p>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredComprehensiveServices.map((service, index) => (
-                  <Card 
-                    key={`comprehensive-${index}`} 
+                  <Card
+                    key={`comprehensive-${index}`}
                     className="group hover:shadow-2xl transition-all duration-300 border-2 hover:border-purple-300 bg-white relative overflow-hidden"
                   >
                     <div className="absolute top-4 right-4 z-10">
-                      <Badge variant="secondary" className="bg-purple-100 text-purple-800 text-xs">
+                      <Badge
+                        variant="secondary"
+                        className="bg-purple-100 text-purple-800 text-xs"
+                      >
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Premium
                       </Badge>
@@ -629,18 +832,41 @@ const VehicleServices: React.FC = () => {
                         <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-200 transition-colors">
                           <Wrench className="h-8 w-8 text-purple-600" />
                         </div>
-                        
+
                         <CardTitle className="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
                           {service.serviceName}
                         </CardTitle>
-                        
-                        <div className="text-3xl font-bold text-purple-600 mb-2">
-                          ₹{service.price.toLocaleString('en-IN')}
+
+                        <div className="mb-2 text-center">
+                          {service.discountedPrice &&
+                          service.discountedPrice < (service.price ?? 0) ? (
+                            <>
+                              <div className="text-sm text-gray-500 line-through">
+                                ₹
+                                {(
+                                  service.originalPrice ?? service.price
+                                ).toLocaleString("en-IN")}
+                              </div>
+                              <div className="text-3xl font-bold text-purple-600">
+                                ₹
+                                {service.discountedPrice.toLocaleString(
+                                  "en-IN"
+                                )}
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-3xl font-bold text-purple-600">
+                              ₹{(service.price ?? 0).toLocaleString("en-IN")}
+                            </div>
+                          )}
                         </div>
-                        
+
                         <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
                           <Clock className="h-4 w-4" />
-                          <span>{service.estimatedTime} hour{service.estimatedTime !== 1 ? 's' : ''}</span>
+                          <span>
+                            {service.estimatedTime} hour
+                            {service.estimatedTime !== 1 ? "s" : ""}
+                          </span>
                         </div>
                       </div>
                     </CardHeader>
@@ -675,7 +901,7 @@ const VehicleServices: React.FC = () => {
                         </div>
                       </div>
 
-                      <Button 
+                      <Button
                         onClick={() => handleBookService(service)}
                         className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 text-lg group-hover:shadow-lg transition-all duration-300"
                         size="lg"
@@ -701,27 +927,36 @@ const VehicleServices: React.FC = () => {
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="h-6 w-6 text-blue-600" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Quality Guarantee</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  Quality Guarantee
+                </h3>
                 <p className="text-sm text-gray-600">
-                  All services come with our quality guarantee and warranty on parts.
+                  All services come with our quality guarantee and warranty on
+                  parts.
                 </p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Clock className="h-6 w-6 text-green-600" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Quick Service</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  Quick Service
+                </h3>
                 <p className="text-sm text-gray-600">
-                  Professional service completed within 2-4 hours at your convenience.
+                  Professional service completed within 2-4 hours at your
+                  convenience.
                 </p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Wrench className="h-6 w-6 text-purple-600" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Expert Technicians</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  Expert Technicians
+                </h3>
                 <p className="text-sm text-gray-600">
-                  Certified technicians with years of experience in automotive service.
+                  Certified technicians with years of experience in automotive
+                  service.
                 </p>
               </div>
             </div>
@@ -733,22 +968,18 @@ const VehicleServices: React.FC = () => {
           <p className="text-gray-600 mb-4">
             Need help choosing the right service?
           </p>
-          <Button 
-            variant="outline" 
-            onClick={() => navigate('/contact')}
+          <Button
+            variant="outline"
+            onClick={() => navigate("/contact")}
             className="mr-4"
           >
             Contact Support
           </Button>
-          <Button 
-            variant="outline" 
-            onClick={handleBackToQuote}
-          >
+          <Button variant="outline" onClick={handleBackToQuote}>
             Try Different Vehicle
           </Button>
         </div>
       </div>
-
 
       <Footer />
     </div>

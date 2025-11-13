@@ -10,8 +10,6 @@ import {
   Package,
   Tag,
   ShoppingCart,
-  FileText,
-  Image,
   Settings,
   Activity,
   Bell,
@@ -48,12 +46,7 @@ const sidebarItems: SidebarItem[] = [
     permission: "manage_services",
   },
   {
-    title: "Products",
-    href: "/admin/products",
-    icon: Package,
-    permission: "manage_products",
-  },
-  {
+    // Products temporarily hidden per requirements
     title: "Brands",
     href: "/admin/brands",
     icon: Tag,
@@ -65,18 +58,7 @@ const sidebarItems: SidebarItem[] = [
     icon: ShoppingCart,
     permission: "manage_orders",
   },
-  {
-    title: "Content",
-    href: "/admin/content",
-    icon: FileText,
-    permission: "manage_content",
-  },
-  {
-    title: "Media",
-    href: "/admin/media",
-    icon: Image,
-    permission: "manage_media",
-  },
+  // Content and Media removed per admin request
   {
     title: "Settings",
     href: "/admin/settings",

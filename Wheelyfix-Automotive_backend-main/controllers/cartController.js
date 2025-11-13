@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const Cart = require('../models/cartModel');
+const Service = require('../models/serviceModel');
 
 // Service pricing configuration (in paise)
 const SERVICE_PRICING = {
@@ -230,11 +231,48 @@ const addToCart = asyncHandler(async (req, res) => {
     throw new Error('Service ID is required');
   }
 
-  // Get service details from pricing config
-  const serviceDetails = SERVICE_PRICING[serviceId];
+  // Try to get service from database first
+  let serviceDetails = null;
+  
+  // Check if serviceId is a MongoDB ObjectId (24 hex characters)
+  const isObjectId = /^[0-9a-fA-F]{24}$/.test(serviceId);
+  
+  if (isObjectId) {
+    // Try to fetch from database
+    const dbService = await Service.findById(serviceId);
+    if (dbService && dbService.status === 'active' && dbService.visible) {
+      // Format duration
+      let durationStr = dbService.duration || '1-2 hours';
+      if (dbService.durationMinutes) {
+        const hours = Math.floor(dbService.durationMinutes / 60);
+        const minutes = dbService.durationMinutes % 60;
+        if (hours > 0 && minutes > 0) {
+          durationStr = `${hours}h ${minutes}m`;
+        } else if (hours > 0) {
+          durationStr = `${hours}h`;
+        } else {
+          durationStr = `${minutes}m`;
+        }
+      }
+      
+      serviceDetails = {
+        name: dbService.title || dbService.name || 'Service',
+        price: dbService.price || 0,
+        description: dbService.description || '',
+        duration: durationStr,
+        category: dbService.category || 'General Service',
+        icon: dbService.icon || '🔧'
+      };
+    }
+  }
+  
+  // Fallback to hardcoded SERVICE_PRICING if not found in database
   if (!serviceDetails) {
-    res.status(400);
-    throw new Error('Invalid service ID');
+    serviceDetails = SERVICE_PRICING[serviceId];
+    if (!serviceDetails) {
+      res.status(400);
+      throw new Error('Invalid service ID');
+    }
   }
 
   try {
@@ -373,22 +411,103 @@ const clearCart = asyncHandler(async (req, res) => {
 // @route   GET /api/cart/services
 // @access  Public
 const getAvailableServices = asyncHandler(async (req, res) => {
-  const services = Object.entries(SERVICE_PRICING).map(([id, details]) => ({
-    id,
-    name: details.name,
-    price: details.price,
-    priceInRupees: details.price / 100,
-    description: details.description,
-    duration: details.duration,
-    category: details.category,
-    icon: details.icon,
-    isNew: details.isNew || false
-  }));
+  try {
+    // Fetch active and visible services from database
+    // Only return services that are active, visible, and not archived
+    const dbServices = await Service.find({
+      status: 'active',
+      visible: true
+    })
+    .select('_id title description price durationMinutes duration category icon type status visible popular createdAt')
+    .sort({ createdAt: -1 })
+    .lean();
 
-  res.json({
-    success: true,
-    services
-  });
+    // Transform database services to match client-expected format
+    const services = dbServices.map((service) => {
+      // Use _id as the service id
+      const serviceId = service._id.toString();
+      
+      // Determine if service is new (created in last 7 days)
+      const createdAt = service.createdAt || new Date();
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const isNew = new Date(createdAt) > sevenDaysAgo;
+
+      // Format duration - use durationMinutes if available, otherwise use duration string
+      let durationStr = service.duration || '1-2 hours';
+      if (service.durationMinutes) {
+        const hours = Math.floor(service.durationMinutes / 60);
+        const minutes = service.durationMinutes % 60;
+        if (hours > 0 && minutes > 0) {
+          durationStr = `${hours}h ${minutes}m`;
+        } else if (hours > 0) {
+          durationStr = `${hours}h`;
+        } else {
+          durationStr = `${minutes}m`;
+        }
+      }
+
+      return {
+        id: serviceId,
+        name: service.title || service.name || 'Service',
+        price: service.price || 0, // Price in paise (smallest currency unit)
+        priceInRupees: (service.price || 0) / 100, // Price in rupees for display
+        description: service.description || '',
+        duration: durationStr,
+        category: service.category || 'General Service',
+        icon: service.icon || '🔧',
+        isNew: isNew || service.popular || false
+      };
+    });
+
+    // If no services found in database, fallback to hardcoded SERVICE_PRICING
+    // This ensures backward compatibility during migration
+    if (services.length === 0) {
+      console.warn('No services found in database, falling back to hardcoded SERVICE_PRICING');
+      const fallbackServices = Object.entries(SERVICE_PRICING).map(([id, details]) => ({
+        id,
+        name: details.name,
+        price: details.price,
+        priceInRupees: details.price / 100,
+        description: details.description,
+        duration: details.duration,
+        category: details.category,
+        icon: details.icon,
+        isNew: details.isNew || false
+      }));
+      
+      return res.json({
+        success: true,
+        services: fallbackServices
+      });
+    }
+
+    res.json({
+      success: true,
+      services
+    });
+  } catch (error) {
+    console.error('Error fetching services from database:', error);
+    
+    // Fallback to hardcoded SERVICE_PRICING on error
+    console.warn('Falling back to hardcoded SERVICE_PRICING due to error');
+    const fallbackServices = Object.entries(SERVICE_PRICING).map(([id, details]) => ({
+      id,
+      name: details.name,
+      price: details.price,
+      priceInRupees: details.price / 100,
+      description: details.description,
+      duration: details.duration,
+      category: details.category,
+      icon: details.icon,
+      isNew: details.isNew || false
+    }));
+
+    res.json({
+      success: true,
+      services: fallbackServices
+    });
+  }
 });
 
 module.exports = {
